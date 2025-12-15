@@ -192,6 +192,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// ensure body parsers
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// serve template/upload dirs (dev only)
+app.use('/static/uploads', express.static(path.join(process.cwd(), 'data', 'excel', 'uploads')));
+app.use('/static/templates', express.static(path.join(process.cwd(), 'data', 'templates')));
+
+// mount excel router
+const excelRouter = require('./routes/excel');
+app.use('/excel', excelRouter);
+
 // Routes
 app.get('/', async (req, res) => {
     try {

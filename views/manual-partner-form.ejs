@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title><%= title %></title>
+</head>
+<body>
+  <h1><%= title %></h1>
+
+  <form action="/excel/manual-add" method="post">
+    <div>
+      <label>Partner ID (optional)</label>
+      <input name="partner_id" type="text"/>
+    </div>
+
+    <div>
+      <label>Partner Name *</label>
+      <input name="partner_name" type="text" required/>
+    </div>
+
+    <div>
+      <label>Contract Status</label>
+      <select name="contract_status">
+        <option>Draft</option>
+        <option>Signed</option>
+        <option>Expired</option>
+        <option>Terminated</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Framework Agreement Date</label>
+      <input name="framework_agreement_date" type="date"/>
+    </div>
+
+    <div>
+      <label>Commencement Date</label>
+      <input name="commencement_date" type="date"/>
+    </div>
+
+    <div>
+      <label>Term (Years)</label>
+      <input name="contract_term_years" type="number" min="0"/>
+    </div>
+
+    <div>
+      <label>Current Task Order</label>
+      <input name="current_task_order" type="text"/>
+    </div>
+
+    <div>
+      <label>Regions of Operation (hold Ctrl to multi-select)</label>
+      <select name="regions_of_operation" multiple>
+        <% regions.forEach(r => { %>
+          <option value="<%= r %>"><%= r %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div>
+      <label>Key Personnel</label>
+      <input name="key_personnel" type="text"/>
+    </div>
+
+    <div>
+      <label>Task Order Price (Year 1) (UGX)</label>
+      <input name="task_order_price_y1" type="number" step="0.01"/>
+    </div>
+
+    <div>
+      <label>Contract Link (URL)</label>
+      <input name="contract_link" type="url"/>
+    </div>
+
+    <div>
+      <button type="submit">Save Partner</button>
+    </div>
+  </form>
+</body>
+</html>
