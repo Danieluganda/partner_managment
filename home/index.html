@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Dashboard - Start Here</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 3rem;
+        }
+        h1 {
+            color: #2563eb;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        .alert {
+            background: #dbeafe;
+            border-left: 4px solid #2563eb;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .alert strong {
+            color: #1e40af;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .btn-group {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1e293b;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .btn:hover {
+            border-color: #2563eb;
+            background: #f0f9ff;
+            transform: translateX(5px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1e40af, #1e3a8a);
+            transform: scale(1.02);
+        }
+        .icon {
+            font-size: 2rem;
+            width: 50px;
+            text-align: center;
+        }
+        .btn-content {
+            flex: 1;
+        }
+        .btn-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        .btn-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+        .btn-primary .btn-desc {
+            color: rgba(255,255,255,0.9);
+        }
+        .files-section {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+        .files-section h3 {
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+        .file-list {
+            list-style: none;
+        }
+        .file-list li {
+            padding: 0.5rem 0;
+            color: #64748b;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .stat {
+            text-align: center;
+            padding: 1rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .stat-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Partner Dashboard</h1>
+        <p class="subtitle">Interactive Contract & Partner Management System</p>
+        
+        <div class="alert">
+            <strong>🚀 Quick Start:</strong>
+            Click the button below to open your dashboard. Everything is ready to use!
+        </div>
+
+        <div class="btn-group">
+            <a href="dashboard_standalone.html" class="btn btn-primary">
+                <div class="icon">🚀</div>
+                <div class="btn-content">
+                    <div class="btn-title">Open Dashboard (Recommended)</div>
+                    <div class="btn-desc">Single-file version with everything built-in</div>
+                </div>
+            </a>
+
+            <a href="partner_dashboard.html" class="btn">
+                <div class="icon">📁</div>
+                <div class="btn-content">
+                    <div class="btn-title">Open Dashboard (Separate Files)</div>
+                    <div class="btn-desc">For editing and customization</div>
+                </div>
+            </a>
+
+            <a href="QUICK_START.md" class="btn">
+                <div class="icon">📖</div>
+                <div class="btn-content">
+                    <div class="btn-title">Quick Start Guide</div>
+                    <div class="btn-desc">Simple instructions to get started</div>
+                </div>
+            </a>
+
+            <a href="README.md" class="btn">
+                <div class="icon">📚</div>
+                <div class="btn-content">
+                    <div class="btn-title">Full Documentation</div>
+                    <div class="btn-desc">Complete guide with all features</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">13</div>
+                <div class="stat-label">Partners</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">10</div>
+                <div class="stat-label">External Partners</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Data Views</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">✓</div>
+                <div class="stat-label">Ready to Use</div>
+            </div>
+        </div>
+
+        <div class="files-section">
+            <h3>📦 Package Contents</h3>
+            <ul class="file-list">
+                <li>✅ dashboard_standalone.html (60KB+) - All-in-one dashboard</li>
+                <li>✅ partner_dashboard.html (12KB) - Main HTML</li>
+                <li>✅ styles.css (11KB) - Styling</li>
+                <li>✅ script.js (17KB) - Interactivity</li>
+                <li>✅ dashboard_data.json (20KB) - Your data</li>
+                <li>✅ Documentation files</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

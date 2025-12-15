@@ -1,0 +1,50 @@
+<%- include('../partials/head', { title: 'View Partner' }) %>
+
+<div class="partner-view-container">
+    <h1>Partner Details</h1>
+    <table class="partner-details-table">
+        <tr>
+            <th>Partner ID</th>
+            <td><%= partner.id %></td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td><%= partner.partnerName || partner.name %></td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td><%= partner.contractStatus %></td>
+        </tr>
+        <tr>
+            <th>Agreement Date</th>
+            <td><%= partner.contractStartDate %></td>
+        </tr>
+        <tr>
+            <th>Commencement</th>
+            <td><%= partner.commencementDate %></td>
+        </tr>
+        <tr>
+            <th>Term</th>
+            <td><%= partner.contractDuration %></td>
+        </tr>
+        <tr>
+            <th>Task Order</th>
+            <td><%= partner.taskOrderPrice %></td>
+        </tr>
+        <tr>
+            <th>Regions</th>
+            <td><%= partner.regionsOfOperation %></td>
+        </tr>
+        <tr>
+            <th>Key Personnel</th>
+            <td><%= partner.keyPersonnelFormatted || partner.keyPersonnel %></td>
+        </tr>
+        <tr>
+            <th>Price (Y1)</th>
+            <td><%= partner.contractValue || partner.taskOrderPrice %></td>
+        </tr>
+    </table>
+    <a href="/master-register" class="btn-primary">Back to Register</a>
+</div>
+
+<%- include('../partials/footer', { additionalJS: ['/js/forms/partner-view.js'] }) %>

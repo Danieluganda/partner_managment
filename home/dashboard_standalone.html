@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Management Dashboard</title>
+    <style>:root {
+    --primary-color: #2563eb;
+    --primary-dark: #1e40af;
+    --secondary-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --bg-color: #f8fafc;
+    --sidebar-bg: #1e293b;
+    --card-bg: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    color: white;
+    padding: 2rem 0;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+.logo {
+    padding: 0 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 2rem;
+}
+
+.logo h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.nav-item.active {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: white;
+    border-left-color: var(--primary-color);
+}
+
+.nav-item .icon {
+    font-size: 1.25rem;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 2rem;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-left h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.header-left p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.header-right {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding: 0.625rem 2.5rem 0.625rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    width: 300px;
+    transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.btn-refresh {
+    padding: 0.625rem 1.25rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-refresh:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Content Area */
+.content-area {
+    position: relative;
+}
+
+.view {
+    display: none;
+}
+
+.view.active {
+    display: block;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-radius: 12px;
+}
+
+.stat-content h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.stat-content p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Charts Grid */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.chart-card h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.chart-card canvas {
+    max-height: 300px;
+}
+
+/* Recent Activity */
+.recent-activity {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.recent-activity h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Table Styles */
+.table-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.table-search, .filter-select {
+    padding: 0.625rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    flex: 1;
+    min-width: 250px;
+}
+
+.table-search:focus, .filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.btn-export {
+    padding: 0.625rem 1.25rem;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+    background-color: #059669;
+}
+
+.table-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: var(--bg-color);
+    position: sticky;
+    top: 0;
+}
+
+th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+}
+
+td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+    background-color: var(--bg-color);
+}
+
+/* Status Badges */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-signed {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.badge-pending {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.badge-approved {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--primary-color);
+}
+
+.badge-yes {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.badge-no {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+/* Action Buttons */
+.btn-action {
+    padding: 0.375rem 0.75rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-action:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Personnel Grid */
+.personnel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.personnel-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.personnel-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.personnel-card h4 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.personnel-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.personnel-card .contact-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Partner List */
+.partner-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.partner-item:last-child {
+    border-bottom: none;
+}
+
+.partner-item-left h4 {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.partner-item-left p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.partner-item-right {
+    text-align: right;
+}
+
+.partner-amount {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+    
+    .main-content {
+        margin-left: 220px;
+    }
+    
+    .search-box input {
+        width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -260px;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+    
+    .sidebar.active {
+        left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .search-box input {
+        width: 100%;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Utility Classes */
+.text-center {
+    text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+
+.fw-bold { font-weight: 700; }
+.fw-semibold { font-weight: 600; }
+
+.text-primary { color: var(--primary-color); }
+.text-secondary { color: var(--text-secondary); }
+.text-danger { color: var(--danger-color); }
+.text-success { color: var(--secondary-color); }
+</style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Partner Dashboard</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-view="overview">
+                    <span class="icon">📊</span>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="nav-item" data-view="master">
+                    <span class="icon">📋</span>
+                    <span>Master Register</span>
+                </a>
+                <a href="#" class="nav-item" data-view="financial">
+                    <span class="icon">💰</span>
+                    <span>Financial Summary</span>
+                </a>
+                <a href="#" class="nav-item" data-view="deliverables">
+                    <span class="icon">✅</span>
+                    <span>Deliverables</span>
+                </a>
+                <a href="#" class="nav-item" data-view="compliance">
+                    <span class="icon">📑</span>
+                    <span>Compliance</span>
+                </a>
+                <a href="#" class="nav-item" data-view="personnel">
+                    <span class="icon">👥</span>
+                    <span>Key Personnel</span>
+                </a>
+                <a href="#" class="nav-item" data-view="external">
+                    <span class="icon">🤝</span>
+                    <span>External Partners</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 id="page-title">Dashboard Overview</h1>
+                    <p id="page-subtitle">Real-time partner and contract management</p>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Search partners...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <button class="btn-refresh" id="refresh-btn">↻ Refresh</button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Overview View -->
+                <div id="overview-view" class="view active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-content">
+                                <h3 id="total-partners">0</h3>
+                                <p>Total Partners</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🤝</div>
+                            <div class="stat-content">
+                                <h3 id="external-partners-count">0</h3>
+                                <p>External Partners</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-content">
+                                <h3 id="active-contracts">0</h3>
+                                <p>Active Contracts</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💵</div>
+                            <div class="stat-content">
+                                <h3 id="total-budget">UGX 0</h3>
+                                <p>Total Budget</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Contract Status Distribution</h3>
+                            <canvas id="contractStatusChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Regional Coverage</h3>
+                            <canvas id="regionalChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity">
+                        <h3>Recent Partners</h3>
+                        <div id="recent-partners-list"></div>
+                    </div>
+                </div>
+
+                <!-- Master Register View -->
+                <div id="master-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="master-search" class="table-search" placeholder="Search partners...">
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="master-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner ID</th>
+                                    <th>Partner Name</th>
+                                    <th>Status</th>
+                                    <th>Agreement Date</th>
+                                    <th>Commencement</th>
+                                    <th>Term</th>
+                                    <th>Task Order</th>
+                                    <th>Regions</th>
+                                    <th>Key Personnel</th>
+                                    <th>Price (Y1)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Financial Summary View -->
+                <div id="financial-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="financial-search" class="table-search" placeholder="Search...">
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="financial-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner ID</th>
+                                    <th>Partner Name</th>
+                                    <th>Total Price</th>
+                                    <th>Q1 Paid</th>
+                                    <th>Q2 Paid</th>
+                                    <th>Q3 Paid</th>
+                                    <th>Q4 Paid</th>
+                                    <th>Total Disbursed</th>
+                                    <th>Utilization Rate</th>
+                                    <th>Comments</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financial-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Deliverables View -->
+                <div id="deliverables-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="deliverables-search" class="table-search" placeholder="Search deliverables...">
+                        <select id="status-filter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="submitted">Submitted</option>
+                            <option value="approved">Approved</option>
+                        </select>
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="deliverables-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner ID</th>
+                                    <th>Partner Name</th>
+                                    <th>Deliverable #</th>
+                                    <th>Description</th>
+                                    <th>Milestone Date</th>
+                                    <th>Status</th>
+                                    <th>Actual Submission</th>
+                                    <th>Approval Date</th>
+                                    <th>% Payment</th>
+                                    <th>Payment Amount</th>
+                                    <th>Payment Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deliverables-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Compliance View -->
+                <div id="compliance-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="compliance-search" class="table-search" placeholder="Search requirements...">
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="compliance-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner ID</th>
+                                    <th>Partner Name</th>
+                                    <th>Requirement</th>
+                                    <th>Due Date</th>
+                                    <th>Reporting Period</th>
+                                    <th>Submission Date</th>
+                                    <th>Status</th>
+                                    <th>FMCS Audit</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compliance-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Key Personnel View -->
+                <div id="personnel-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="personnel-search" class="table-search" placeholder="Search personnel...">
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="personnel-grid" id="personnel-grid">
+                        <!-- Personnel cards will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- External Partners View -->
+                <div id="external-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="external-search" class="table-search" placeholder="Search external partners...">
+                        <select id="stage-filter" class="filter-select">
+                            <option value="">All Stages</option>
+                            <option value="exploratory">Exploratory</option>
+                            <option value="mou">MoU Drafting</option>
+                            <option value="review">Internal Review</option>
+                            <option value="partner-review">Partner Review</option>
+                            <option value="sign-off">Final Sign-Off</option>
+                            <option value="activation">Post-MoU Activation</option>
+                        </select>
+                        <select id="external-status-filter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="on-track">On Track</option>
+                            <option value="needs-attention">Needs Attention</option>
+                            <option value="stalled">Stalled / Blocked</option>
+                            <option value="not-started">Not Started</option>
+                        </select>
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="external-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner Name</th>
+                                    <th>Key Contact</th>
+                                    <th>Date Initiated</th>
+                                    <th>Current Stage</th>
+                                    <th>Key Objectives</th>
+                                    <th>Status</th>
+                                    <th>Pending Tasks</th>
+                                    <th>Responsible</th>
+                                    <th>Deadline</th>
+                                    <th>Notes & Blockers</th>
+                                </tr>
+                            </thead>
+                            <tbody id="external-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+// Embedded Data
+const EMBEDDED_DATA = {
+  "masterRegister": [
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "THE PRIVATE EDUCATION DEVELOPMENT NETWORK LIMITED",
+      "Contract Status": "Signed",
+      "Framework Agreement Date": 1747180800000,
+      "Commencement Date": 1747180800000,
+      "Term (Years)": 3,
+      "Current Task Order": "Year 1: May-25 to May-26",
+      "Regions of Operation": "Busia, Tororo, Pallisa, Bulambuli, Kapchorwa, Mbale, Sironko",
+      "Key Personnel": "Mutumba Irene Josephine",
+      "Task Order Price (Y1)": "UGX 748,694,200",
+      "Contract Link": "[View]"
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": "STANBIC BUSINESS INCUBATOR LIMITED",
+      "Contract Status": "Signed",
+      "Framework Agreement Date": 1751414400000,
+      "Commencement Date": 1748736000000,
+      "Term (Years)": 3,
+      "Current Task Order": "Year 1: Jun-25 to Jun-26",
+      "Regions of Operation": "Nakasongola, Nakaseke, Luweero, Kiboga, Mukono, Buikwe, Wakiso, Kampala",
+      "Key Personnel": "Catherine Poran",
+      "Task Order Price (Y1)": "UGX 750,000,000",
+      "Contract Link": "[View]"
+    },
+    {
+      "Partner ID": "P-03",
+      "Partner Name": "XY ",
+      "Contract Status": "Signed",
+      "Framework Agreement Date": 1747267200000,
+      "Commencement Date": 1747267200000,
+      "Term (Years)": 3,
+      "Current Task Order": "Year 1: May-25 to May-26",
+      "Regions of Operation": "Central Region",
+      "Key Personnel": "John Smith",
+      "Task Order Price (Y1)": "UGX 700,000,000",
+      "Contract Link": "[View]"
+    },
+    {
+      "Partner ID": "P-04",
+      "Partner Name": "Challenges Uganda",
+      "Contract Status": "Signed",
+      "Framework Agreement Date": 1747699200000,
+      "Commencement Date": 1747699200000,
+      "Term (Years)": 3,
+      "Current Task Order": "Year 1: May-25 to May-26",
+      "Regions of Operation": "Northern Region",
+      "Key Personnel": "Sarah Johnson",
+      "Task Order Price (Y1)": "UGX 720,000,000",
+      "Contract Link": "[View]"
+    },
+    {
+      "Partner ID": "P-05",
+      "Partner Name": "dfcu Bank",
+      "Contract Status": "Signed",
+      "Framework Agreement Date": 1748131200000,
+      "Commencement Date": 1748131200000,
+      "Term (Years)": 3,
+      "Current Task Order": "Year 1: May-25 to May-26",
+      "Regions of Operation": "Central & Eastern",
+      "Key Personnel": "Michael Brown",
+      "Task Order Price (Y1)": "UGX 800,000,000",
+      "Contract Link": "[View]"
+    },
+    {
+      "Partner ID": "P-06",
+      "Partner Name": "EHCAI",
+      "Contract Status": "Signed",
+      "Framework Agreement Date": 1748736000000,
+      "Commencement Date": 1748736000000,
+      "Term (Years)": 3,
+      "Current Task Order": "Year 1: Jun-25 to Jun-26",
+      "Regions of Operation": "Western Region",
+      "Key Personnel": "David Wilson",
+      "Task Order Price (Y1)": "UGX 680,000,000",
+      "Contract Link": "[View]"
+    },
+    {
+      "Partner ID": "P-07",
+      "Partner Name": "Mkazi Foundation",
+      "Contract Status": "Signed",
+      "Framework Agreement Date": 1749513600000,
+      "Commencement Date": 1749513600000,
+      "Term (Years)": 3,
+      "Current Task Order": "Year 1: Jun-25 to Jun-26",
+      "Regions of Operation": "Eastern Region",
+      "Key Personnel": "Grace Mbeki",
+      "Task Order Price (Y1)": "UGX 650,000,000",
+      "Contract Link": "[View]"
+    },
+    {
+      "Partner ID": "P-08",
+      "Partner Name": "MUBS",
+      "Contract Status": "Signed",
+      "Framework Agreement Date": 1749945600000,
+      "Commencement Date": 1749945600000,
+      "Term (Years)": 3,
+      "Current Task Order": "Year 1: Jun-25 to Jun-26",
+      "Regions of Operation": "Nationwide",
+      "Key Personnel": "Prof. James Kato",
+      "Task Order Price (Y1)": "UGX 850,000,000",
+      "Contract Link": "[View]"
+    },
+    {
+      "Partner ID": "P-09",
+      "Partner Name": "LEU",
+      "Contract Status": "In Contracting",
+      "Framework Agreement Date": "-",
+      "Commencement Date": "-",
+      "Term (Years)": 3,
+      "Current Task Order": "-",
+      "Regions of Operation": "Central Region",
+      "Key Personnel": "-",
+      "Task Order Price (Y1)": "UGX 0",
+      "Contract Link": "-"
+    },
+    {
+      "Partner ID": "P-10",
+      "Partner Name": "AGDI",
+      "Contract Status": "In Contracting",
+      "Framework Agreement Date": "-",
+      "Commencement Date": "-",
+      "Term (Years)": 3,
+      "Current Task Order": "-",
+      "Regions of Operation": "Western Region",
+      "Key Personnel": "-",
+      "Task Order Price (Y1)": "UGX 0",
+      "Contract Link": "-"
+    },
+    {
+      "Partner ID": "P-11",
+      "Partner Name": "EASSI",
+      "Contract Status": "In Contracting",
+      "Framework Agreement Date": "-",
+      "Commencement Date": "-",
+      "Term (Years)": 3,
+      "Current Task Order": "-",
+      "Regions of Operation": "Eastern Region",
+      "Key Personnel": "-",
+      "Task Order Price (Y1)": "UGX 0",
+      "Contract Link": "-"
+    },
+    {
+      "Partner ID": "P-12",
+      "Partner Name": "AID",
+      "Contract Status": "In Contracting",
+      "Framework Agreement Date": "-",
+      "Commencement Date": "-",
+      "Term (Years)": 3,
+      "Current Task Order": "-",
+      "Regions of Operation": "Northern Region",
+      "Key Personnel": "-",
+      "Task Order Price (Y1)": "UGX 0",
+      "Contract Link": "-"
+    },
+    {
+      "Partner ID": "P-13",
+      "Partner Name": "CURAD",
+      "Contract Status": "In Contracting",
+      "Framework Agreement Date": "-",
+      "Commencement Date": "-",
+      "Term (Years)": 3,
+      "Current Task Order": "-",
+      "Regions of Operation": "Nationwide",
+      "Key Personnel": "-",
+      "Task Order Price (Y1)": "UGX 0",
+      "Contract Link": "-"
+    }
+  ],
+  "financialSummary": [
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "PEDN",
+      "Total Task Order Price": "UGX 748,694,200",
+      "Q1 Advance": null,
+      "Q1 Actual Paid": null,
+      "Q1 Report Received": "Yes",
+      "Q1 Report Approved": "Yes",
+      "Q2 Advance": null,
+      "Q2 Actual Paid": null,
+      "Q2 Report Received": "No",
+      "Q2 Report Approved": "No",
+      "Q3 Advance": null,
+      "Q3 Actual Paid": null,
+      "Q4 Advance": null,
+      "Q4 Actual Paid": null,
+      "Total Disbursed": null,
+      "Utilization Rate": 0.4,
+      "Comments": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": "SBIL",
+      "Total Task Order Price": "UGX 750,000,000",
+      "Q1 Advance": null,
+      "Q1 Actual Paid": null,
+      "Q1 Report Received": null,
+      "Q1 Report Approved": null,
+      "Q2 Advance": null,
+      "Q2 Actual Paid": null,
+      "Q2 Report Received": null,
+      "Q2 Report Approved": null,
+      "Q3 Advance": null,
+      "Q3 Actual Paid": null,
+      "Q4 Advance": null,
+      "Q4 Actual Paid": null,
+      "Total Disbursed": null,
+      "Utilization Rate": null,
+      "Comments": null
+    },
+    {
+      "Partner ID": "P-03",
+      "Partner Name": "XY ",
+      "Total Task Order Price": null,
+      "Q1 Advance": null,
+      "Q1 Actual Paid": null,
+      "Q1 Report Received": null,
+      "Q1 Report Approved": null,
+      "Q2 Advance": null,
+      "Q2 Actual Paid": null,
+      "Q2 Report Received": null,
+      "Q2 Report Approved": null,
+      "Q3 Advance": null,
+      "Q3 Actual Paid": null,
+      "Q4 Advance": null,
+      "Q4 Actual Paid": null,
+      "Total Disbursed": null,
+      "Utilization Rate": null,
+      "Comments": null
+    },
+    {
+      "Partner ID": "P-04",
+      "Partner Name": "Challenges",
+      "Total Task Order Price": null,
+      "Q1 Advance": null,
+      "Q1 Actual Paid": null,
+      "Q1 Report Received": null,
+      "Q1 Report Approved": null,
+      "Q2 Advance": null,
+      "Q2 Actual Paid": null,
+      "Q2 Report Received": null,
+      "Q2 Report Approved": null,
+      "Q3 Advance": null,
+      "Q3 Actual Paid": null,
+      "Q4 Advance": null,
+      "Q4 Actual Paid": null,
+      "Total Disbursed": null,
+      "Utilization Rate": null,
+      "Comments": null
+    },
+    {
+      "Partner ID": "P-05",
+      "Partner Name": "dfcu Bank",
+      "Total Task Order Price": null,
+      "Q1 Advance": null,
+      "Q1 Actual Paid": null,
+      "Q1 Report Received": null,
+      "Q1 Report Approved": null,
+      "Q2 Advance": null,
+      "Q2 Actual Paid": null,
+      "Q2 Report Received": null,
+      "Q2 Report Approved": null,
+      "Q3 Advance": null,
+      "Q3 Actual Paid": null,
+      "Q4 Advance": null,
+      "Q4 Actual Paid": null,
+      "Total Disbursed": null,
+      "Utilization Rate": null,
+      "Comments": null
+    },
+    {
+      "Partner ID": "P-06",
+      "Partner Name": "EHCAI",
+      "Total Task Order Price": null,
+      "Q1 Advance": null,
+      "Q1 Actual Paid": null,
+      "Q1 Report Received": null,
+      "Q1 Report Approved": null,
+      "Q2 Advance": null,
+      "Q2 Actual Paid": null,
+      "Q2 Report Received": null,
+      "Q2 Report Approved": null,
+      "Q3 Advance": null,
+      "Q3 Actual Paid": null,
+      "Q4 Advance": null,
+      "Q4 Actual Paid": null,
+      "Total Disbursed": null,
+      "Utilization Rate": null,
+      "Comments": null
+    },
+    {
+      "Partner ID": "P-07",
+      "Partner Name": "Mkazi",
+      "Total Task Order Price": null,
+      "Q1 Advance": null,
+      "Q1 Actual Paid": null,
+      "Q1 Report Received": null,
+      "Q1 Report Approved": null,
+      "Q2 Advance": null,
+      "Q2 Actual Paid": null,
+      "Q2 Report Received": null,
+      "Q2 Report Approved": null,
+      "Q3 Advance": null,
+      "Q3 Actual Paid": null,
+      "Q4 Advance": null,
+      "Q4 Actual Paid": null,
+      "Total Disbursed": null,
+      "Utilization Rate": null,
+      "Comments": null
+    },
+    {
+      "Partner ID": "P-08",
+      "Partner Name": "MUBS",
+      "Total Task Order Price": null,
+      "Q1 Advance": null,
+      "Q1 Actual Paid": null,
+      "Q1 Report Received": null,
+      "Q1 Report Approved": null,
+      "Q2 Advance": null,
+      "Q2 Actual Paid": null,
+      "Q2 Report Received": null,
+      "Q2 Report Approved": null,
+      "Q3 Advance": null,
+      "Q3 Actual Paid": null,
+      "Q4 Advance": null,
+      "Q4 Actual Paid": null,
+      "Total Disbursed": null,
+      "Utilization Rate": null,
+      "Comments": "-"
+    }
+  ],
+  "keyPersonnel": [
+    {
+      "Partner ID": "P-01",
+      "Partner Name": null,
+      "Contact Type": "CEO",
+      "Name": null,
+      "Email": null,
+      "Phone": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-01",
+      "Partner Name": null,
+      "Contact Type": "Program Lead",
+      "Name": null,
+      "Email": null,
+      "Phone": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-01",
+      "Partner Name": null,
+      "Contact Type": "Finance Lead",
+      "Name": null,
+      "Email": null,
+      "Phone": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": null,
+      "Contact Type": null,
+      "Name": null,
+      "Email": null,
+      "Phone": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": null,
+      "Contact Type": null,
+      "Name": null,
+      "Email": null,
+      "Phone": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": null,
+      "Contact Type": null,
+      "Name": null,
+      "Email": null,
+      "Phone": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-03",
+      "Partner Name": null,
+      "Contact Type": null,
+      "Name": null,
+      "Email": null,
+      "Phone": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-04",
+      "Partner Name": null,
+      "Contact Type": null,
+      "Name": null,
+      "Email": null,
+      "Phone": null,
+      "Notes": null
+    }
+  ],
+  "deliverables": [
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "PEDN",
+      "Deliverable #": "D1",
+      "Description": "Inception Report and Foundation Course Completion ",
+      "Milestone Date": null,
+      "Status": null,
+      "Actual Submission": null,
+      "Verification Evidence": null,
+      "Approval Date": null,
+      "Payment Amount": null,
+      "Payment Status": null,
+      "Responsible Person": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "PEDN",
+      "Deliverable #": "D2",
+      "Description": "MSME selection and Technical Assistance ",
+      "Milestone Date": null,
+      "Status": null,
+      "Actual Submission": null,
+      "Verification Evidence": null,
+      "Approval Date": null,
+      "Payment Amount": null,
+      "Payment Status": null,
+      "Responsible Person": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "PEDN",
+      "Deliverable #": "D3",
+      "Description": "Technical Assistance & Digital Credit Support",
+      "Milestone Date": null,
+      "Status": null,
+      "Actual Submission": null,
+      "Verification Evidence": null,
+      "Approval Date": null,
+      "Payment Amount": null,
+      "Payment Status": null,
+      "Responsible Person": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "PEDN",
+      "Deliverable #": "D4",
+      "Description": "Sales Growth & Post-Investment Support",
+      "Milestone Date": null,
+      "Status": null,
+      "Actual Submission": null,
+      "Verification Evidence": null,
+      "Approval Date": null,
+      "Payment Amount": null,
+      "Payment Status": null,
+      "Responsible Person": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": "SBIL",
+      "Deliverable #": "D1",
+      "Description": null,
+      "Milestone Date": null,
+      "Status": null,
+      "Actual Submission": null,
+      "Verification Evidence": null,
+      "Approval Date": null,
+      "Payment Amount": null,
+      "Payment Status": null,
+      "Responsible Person": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": "SBIL",
+      "Deliverable #": "D2",
+      "Description": null,
+      "Milestone Date": null,
+      "Status": null,
+      "Actual Submission": null,
+      "Verification Evidence": null,
+      "Approval Date": null,
+      "Payment Amount": null,
+      "Payment Status": null,
+      "Responsible Person": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": "SBIL",
+      "Deliverable #": "D3",
+      "Description": null,
+      "Milestone Date": null,
+      "Status": null,
+      "Actual Submission": null,
+      "Verification Evidence": null,
+      "Approval Date": null,
+      "Payment Amount": null,
+      "Payment Status": null,
+      "Responsible Person": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": "SBIL",
+      "Deliverable #": "D4",
+      "Description": null,
+      "Milestone Date": null,
+      "Status": null,
+      "Actual Submission": null,
+      "Verification Evidence": null,
+      "Approval Date": null,
+      "Payment Amount": null,
+      "Payment Status": null,
+      "Responsible Person": null,
+      "Notes": null
+    }
+  ],
+  "compliance": [
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "PEDN",
+      "Requirement": "Quarterly Narrative Report",
+      "Due Date": null,
+      "Reporting Period": "Q1, Q2. Q3, Q4",
+      "Submission Date": null,
+      "Status": null,
+      "FMCS Audit": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "PEDN",
+      "Requirement": "Quarterly Financial Report",
+      "Due Date": null,
+      "Reporting Period": null,
+      "Submission Date": null,
+      "Status": null,
+      "FMCS Audit": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "PEDN",
+      "Requirement": "Annual Narrative Report",
+      "Due Date": null,
+      "Reporting Period": null,
+      "Submission Date": null,
+      "Status": null,
+      "FMCS Audit": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-01",
+      "Partner Name": "PEDN",
+      "Requirement": "Annual Financial Audit",
+      "Due Date": null,
+      "Reporting Period": null,
+      "Submission Date": null,
+      "Status": null,
+      "FMCS Audit": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": "SBIL",
+      "Requirement": "Quarterly Narrative Report",
+      "Due Date": null,
+      "Reporting Period": null,
+      "Submission Date": null,
+      "Status": null,
+      "FMCS Audit": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": "SBIL",
+      "Requirement": "Quarterly Financial Report",
+      "Due Date": null,
+      "Reporting Period": null,
+      "Submission Date": null,
+      "Status": null,
+      "FMCS Audit": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-02",
+      "Partner Name": "SBIL",
+      "Requirement": "Annual Narrative Report",
+      "Due Date": null,
+      "Reporting Period": null,
+      "Submission Date": null,
+      "Status": null,
+      "FMCS Audit": null,
+      "Notes": null
+    },
+    {
+      "Partner ID": "P-03",
+      "Partner Name": "XY ",
+      "Requirement": "Quarterly Narrative Report",
+      "Due Date": null,
+      "Reporting Period": null,
+      "Submission Date": null,
+      "Status": null,
+      "FMCS Audit": null,
+      "Notes": null
+    }
+  ],
+  "externalPartners": [
+    {
+      "Partner Name": "MTN Uganda",
+      "Key Contact & Details": "Paul Luyima",
+      "Date Initiated": 1751328000000,
+      "Current Stage": "Exploratory, MoU Drafting, Internal Review, Partner Review, Final Sign-Off, Post-MoU Activation",
+      "Key Objectives / Focus Areas": "Digital inclusion, device financing",
+      "Status": "On Track, Needs Attention, Stalled / Blocked, Not Started / Exploratory",
+      "Pending Tasks & Next Steps": "Secure internal sign-off from MTN; Receive their MoU draft.",
+      "Responsible Person(s)": "COO",
+      "Deadline": "ASAP",
+      "Notes & Blockers": "Awaiting response from MTN. COO to follow up."
+    },
+    {
+      "Partner Name": "OPM",
+      "Key Contact & Details": null,
+      "Date Initiated": null,
+      "Current Stage": null,
+      "Key Objectives / Focus Areas": null,
+      "Status": null,
+      "Pending Tasks & Next Steps": null,
+      "Responsible Person(s)": null,
+      "Deadline": null,
+      "Notes & Blockers": null
+    },
+    {
+      "Partner Name": "Ministry of ICT & National Guidance",
+      "Key Contact & Details": null,
+      "Date Initiated": null,
+      "Current Stage": null,
+      "Key Objectives / Focus Areas": null,
+      "Status": null,
+      "Pending Tasks & Next Steps": null,
+      "Responsible Person(s)": null,
+      "Deadline": null,
+      "Notes & Blockers": null
+    },
+    {
+      "Partner Name": "Startup Uganda",
+      "Key Contact & Details": null,
+      "Date Initiated": null,
+      "Current Stage": null,
+      "Key Objectives / Focus Areas": null,
+      "Status": null,
+      "Pending Tasks & Next Steps": null,
+      "Responsible Person(s)": null,
+      "Deadline": null,
+      "Notes & Blockers": null
+    },
+    {
+      "Partner Name": "Stanbic (FlexiPAY)",
+      "Key Contact & Details": null,
+      "Date Initiated": null,
+      "Current Stage": null,
+      "Key Objectives / Focus Areas": null,
+      "Status": null,
+      "Pending Tasks & Next Steps": null,
+      "Responsible Person(s)": null,
+      "Deadline": null,
+      "Notes & Blockers": null
+    },
+    {
+      "Partner Name": "WUSC",
+      "Key Contact & Details": null,
+      "Date Initiated": null,
+      "Current Stage": null,
+      "Key Objectives / Focus Areas": null,
+      "Status": null,
+      "Pending Tasks & Next Steps": null,
+      "Responsible Person(s)": null,
+      "Deadline": null,
+      "Notes & Blockers": null
+    },
+    {
+      "Partner Name": "Enabel (TVETs)",
+      "Key Contact & Details": null,
+      "Date Initiated": null,
+      "Current Stage": null,
+      "Key Objectives / Focus Areas": null,
+      "Status": null,
+      "Pending Tasks & Next Steps": null,
+      "Responsible Person(s)": null,
+      "Deadline": null,
+      "Notes & Blockers": null
+    },
+    {
+      "Partner Name": "MATICENT",
+      "Key Contact & Details": null,
+      "Date Initiated": null,
+      "Current Stage": null,
+      "Key Objectives / Focus Areas": null,
+      "Status": null,
+      "Pending Tasks & Next Steps": null,
+      "Responsible Person(s)": null,
+      "Deadline": null,
+      "Notes & Blockers": null
+    },
+    {
+      "Partner Name": "Mogo",
+      "Key Contact & Details": null,
+      "Date Initiated": null,
+      "Current Stage": null,
+      "Key Objectives / Focus Areas": null,
+      "Status": null,
+      "Pending Tasks & Next Steps": null,
+      "Responsible Person(s)": null,
+      "Deadline": null,
+      "Notes & Blockers": null
+    },
+    {
+      "Partner Name": "Numida",
+      "Key Contact & Details": null,
+      "Date Initiated": null,
+      "Current Stage": null,
+      "Key Objectives / Focus Areas": null,
+      "Status": null,
+      "Pending Tasks & Next Steps": null,
+      "Responsible Person(s)": null,
+      "Deadline": null,
+      "Notes & Blockers": null
+    }
+  ]
+};
+
+// Dashboard Data
+let dashboardData = EMBEDDED_DATA;
+
+// Initialize Dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Dashboard loaded with embedded data');
+    updateOverview();
+    renderMasterTable();
+    renderFinancialTable();
+    renderDeliverablesTable();
+    renderComplianceTable();
+    renderPersonnelCards();
+    setupEventListeners();
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadData();
+    setupEventListeners();
+});
+
+// Load Data from JSON
+
+
+// Load Data (not used with embedded data, but kept for compatibility)
+async function loadData() {
+    dashboardData = EMBEDDED_DATA;
+    updateOverview();
+    renderMasterTable();
+    renderFinancialTable();
+    renderDeliverablesTable();
+    renderComplianceTable();
+    renderPersonnelCards();
+}
+
+        console.error('Error loading data:', error);
+        alert('Note: Could not load data file. Make sure dashboard_data.json is in the same folder as this HTML file.');
+        // Use sample data if file not found
+        useSampleData();
+    }
+}
+
+// Use Sample Data (for demo purposes)
+function useSampleData() {
+    dashboardData = {
+        masterRegister: [
+            {
+                'Partner ID': 'P-01',
+                'Partner Name': 'THE PRIVATE EDUCATION DEVELOPMENT NETWORK LIMITED',
+                'Contract Status': 'Signed',
+                'Framework Agreement Date': '2025-05-14',
+                'Commencement Date': '2025-05-14',
+                'Term (Years)': '3',
+                'Current Task Order': 'Year 1: May-25 to May-26',
+                'Regions of Operation': 'Busia, Tororo, Pallisa, Bulambuli, Kapchorwa, Mbale, Sironko',
+                'Key Personnel': 'Mutumba Irene Josephine',
+                'Task Order Price (Y1)': 'UGX 748,694,200'
+            }
+        ],
+        financialSummary: [
+            {
+                'Partner ID': 'P-01',
+                'Partner Name': 'PEDN',
+                'Total Task Order Price': 'UGX 748,694,200',
+                'Q1 Actual Paid': null,
+                'Q2 Actual Paid': null,
+                'Q3 Actual Paid': null,
+                'Q4 Actual Paid': null,
+                'Total Disbursed': null,
+                'Utilization Rate': 0.4
+            }
+        ],
+        deliverables: [],
+        compliance: [],
+        keyPersonnel: [],
+        externalPartners: []
+    };
+    
+    updateOverview();
+    renderMasterTable();
+    renderFinancialTable();
+    renderExternalPartnersTable();
+}
+
+// Setup Event Listeners
+function setupEventListeners() {
+    // Navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchView(this.dataset.view);
+        });
+    });
+    
+    // Refresh button
+    document.getElementById('refresh-btn').addEventListener('click', loadData);
+    
+    // Search functionality
+    document.getElementById('search-input').addEventListener('input', function(e) {
+        globalSearch(e.target.value);
+    });
+    
+    // Table searches
+    setupTableSearch('master-search', 'master-tbody');
+    setupTableSearch('financial-search', 'financial-tbody');
+    setupTableSearch('deliverables-search', 'deliverables-tbody');
+    setupTableSearch('compliance-search', 'compliance-tbody');
+    setupTableSearch('personnel-search', 'personnel-grid');
+    setupTableSearch('external-search', 'external-tbody');
+}
+
+// Switch View
+function switchView(viewName) {
+    // Update navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.target.closest('.nav-item').classList.add('active');
+    
+    // Hide all views
+    document.querySelectorAll('.view').forEach(view => {
+        view.classList.remove('active');
+    });
+    
+    // Show selected view
+    const viewMap = {
+        'overview': 'overview-view',
+        'master': 'master-view',
+        'financial': 'financial-view',
+        'deliverables': 'deliverables-view',
+        'compliance': 'compliance-view',
+        'personnel': 'personnel-view',
+        'external': 'external-view'
+    };
+    
+    document.getElementById(viewMap[viewName]).classList.add('active');
+    
+    // Update page title
+    const titles = {
+        'overview': 'Dashboard Overview',
+        'master': 'Master Partner Register',
+        'financial': 'Financial Summary',
+        'deliverables': 'Deliverables Tracker',
+        'compliance': 'Compliance & Reporting',
+        'personnel': 'Key Personnel Directory',
+        'external': 'External Partners Tracker'
+    };
+    
+    document.getElementById('page-title').textContent = titles[viewName];
+}
+
+// Update Overview Statistics
+function updateOverview() {
+    const partners = dashboardData.masterRegister;
+    const financial = dashboardData.financialSummary;
+    const external = dashboardData.externalPartners || [];
+    
+    // Total Partners
+    document.getElementById('total-partners').textContent = partners.length;
+    
+    // External Partners Count
+    document.getElementById('external-partners-count').textContent = external.length;
+    
+    // Active Contracts
+    const activeContracts = partners.filter(p => p['Contract Status'] === 'Signed').length;
+    document.getElementById('active-contracts').textContent = activeContracts;
+    
+    // Total Budget
+    let totalBudget = 0;
+    financial.forEach(f => {
+        const price = parseFloat((f['Total Task Order Price'] || '').replace(/[^0-9.]/g, '')) || 0;
+        totalBudget += price;
+    });
+    document.getElementById('total-budget').textContent = formatCurrency(totalBudget);
+    
+    // Render recent partners
+    renderRecentPartners();
+}
+
+// Render Recent Partners
+function renderRecentPartners() {
+    const container = document.getElementById('recent-partners-list');
+    const partners = dashboardData.masterRegister.slice(0, 5);
+    
+    container.innerHTML = partners.map(partner => `
+        <div class="partner-item">
+            <div class="partner-item-left">
+                <h4>${partner['Partner Name'] || 'N/A'}</h4>
+                <p>${partner['Partner ID']} • ${partner['Regions of Operation'] || 'N/A'}</p>
+            </div>
+            <div class="partner-item-right">
+                <div class="partner-amount">${partner['Task Order Price (Y1)'] || 'N/A'}</div>
+                <span class="badge badge-${(partner['Contract Status'] || '').toLowerCase()}">${partner['Contract Status'] || 'N/A'}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render Master Register Table
+function renderMasterTable() {
+    const tbody = document.getElementById('master-tbody');
+    const data = dashboardData.masterRegister;
+    
+    tbody.innerHTML = data.map(row => `
+        <tr>
+            <td><strong>${row['Partner ID'] || 'N/A'}</strong></td>
+            <td>${row['Partner Name'] || 'N/A'}</td>
+            <td><span class="badge badge-${(row['Contract Status'] || '').toLowerCase()}">${row['Contract Status'] || 'N/A'}</span></td>
+            <td>${formatDate(row['Framework Agreement Date'])}</td>
+            <td>${formatDate(row['Commencement Date'])}</td>
+            <td>${row['Term (Years)'] || 'N/A'} years</td>
+            <td>${row['Current Task Order'] || 'N/A'}</td>
+            <td>${row['Regions of Operation'] || 'N/A'}</td>
+            <td>${row['Key Personnel'] || 'N/A'}</td>
+            <td><strong>${row['Task Order Price (Y1)'] || 'N/A'}</strong></td>
+            <td><button class="btn-action" onclick="viewPartnerDetails('${row['Partner ID']}')">View</button></td>
+        </tr>
+    `).join('');
+}
+
+// Render Financial Table
+function renderFinancialTable() {
+    const tbody = document.getElementById('financial-tbody');
+    const data = dashboardData.financialSummary;
+    
+    tbody.innerHTML = data.map(row => `
+        <tr>
+            <td><strong>${row['Partner ID'] || 'N/A'}</strong></td>
+            <td>${row['Partner Name'] || 'N/A'}</td>
+            <td><strong>${row['Total Task Order Price'] || 'N/A'}</strong></td>
+            <td>${row['Q1 Actual Paid'] || '-'}</td>
+            <td>${row['Q2 Actual Paid'] || '-'}</td>
+            <td>${row['Q3 Actual Paid'] || '-'}</td>
+            <td>${row['Q4 Actual Paid'] || '-'}</td>
+            <td>${row['Total Disbursed'] || '-'}</td>
+            <td>${row['Utilization Rate'] ? (row['Utilization Rate'] * 100).toFixed(1) + '%' : '-'}</td>
+            <td>${row['Comments'] || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+// Render Deliverables Table
+function renderDeliverablesTable() {
+    const tbody = document.getElementById('deliverables-tbody');
+    const data = dashboardData.deliverables;
+    
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center">No deliverables data available</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = data.map(row => `
+        <tr>
+            <td><strong>${row['Partner ID'] || 'N/A'}</strong></td>
+            <td>${row['Partner Name'] || 'N/A'}</td>
+            <td>${row['Deliverable #'] || 'N/A'}</td>
+            <td>${row['Description'] || 'N/A'}</td>
+            <td>${formatDate(row['Milestone Date'])}</td>
+            <td><span class="badge badge-${(row['Status'] || 'pending').toLowerCase()}">${row['Status'] || 'Pending'}</span></td>
+            <td>${formatDate(row['Actual Submission'])}</td>
+            <td>${formatDate(row['Approval Date'])}</td>
+            <td>${row['% Payment'] || '-'}</td>
+            <td>${row['Payment Amount'] || '-'}</td>
+            <td><span class="badge badge-${(row['Payment Status'] || 'pending').toLowerCase()}">${row['Payment Status'] || 'Pending'}</span></td>
+        </tr>
+    `).join('');
+}
+
+// Render Compliance Table
+function renderComplianceTable() {
+    const tbody = document.getElementById('compliance-tbody');
+    const data = dashboardData.compliance;
+    
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">No compliance data available</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = data.map(row => `
+        <tr>
+            <td><strong>${row['Partner ID'] || 'N/A'}</strong></td>
+            <td>${row['Partner Name'] || 'N/A'}</td>
+            <td>${row['Requirement'] || 'N/A'}</td>
+            <td>${formatDate(row['Due Date'])}</td>
+            <td>${row['Reporting Period'] || 'N/A'}</td>
+            <td>${formatDate(row['Submission Date'])}</td>
+            <td><span class="badge badge-${(row['Status'] || 'pending').toLowerCase()}">${row['Status'] || 'Pending'}</span></td>
+            <td>${row['FMCS Audit'] || '-'}</td>
+            <td>${row['Notes'] || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+// Render Personnel Cards
+function renderPersonnelCards() {
+    const container = document.getElementById('personnel-grid');
+    const data = dashboardData.keyPersonnel;
+    
+    if (data.length === 0) {
+        container.innerHTML = '<p class="text-center">No personnel data available</p>';
+        return;
+    }
+    
+    container.innerHTML = data.map(person => `
+        <div class="personnel-card">
+            <h4>${person['Name'] || 'N/A'}</h4>
+            <p><strong>Partner:</strong> ${person['Partner ID'] || 'N/A'} - ${person['Partner Name'] || 'N/A'}</p>
+            <p><strong>Role:</strong> ${person['Contact Type'] || 'N/A'}</p>
+            <div class="contact-info">
+                <p><strong>📧 Email:</strong> ${person['Email'] || 'N/A'}</p>
+                <p><strong>📱 Phone:</strong> ${person['Phone'] || 'N/A'}</p>
+                ${person['Notes'] ? `<p><strong>Notes:</strong> ${person['Notes']}</p>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Setup Table Search
+function setupTableSearch(inputId, tableId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    input.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const table = document.getElementById(tableId);
+        
+        if (table.tagName === 'TBODY') {
+            const rows = table.getElementsByTagName('tr');
+            Array.from(rows).forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        } else {
+            // For grid layouts
+            const cards = table.children;
+            Array.from(cards).forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+    });
+}
+
+// Global Search
+function globalSearch(term) {
+    const searchTerm = term.toLowerCase();
+    
+    if (!searchTerm) {
+        renderMasterTable();
+        return;
+    }
+    
+    const tbody = document.getElementById('master-tbody');
+    const filtered = dashboardData.masterRegister.filter(partner => {
+        return Object.values(partner).some(value => 
+            String(value).toLowerCase().includes(searchTerm)
+        );
+    });
+    
+    tbody.innerHTML = filtered.map(row => `
+        <tr>
+            <td><strong>${row['Partner ID'] || 'N/A'}</strong></td>
+            <td>${row['Partner Name'] || 'N/A'}</td>
+            <td><span class="badge badge-${(row['Contract Status'] || '').toLowerCase()}">${row['Contract Status'] || 'N/A'}</span></td>
+            <td>${formatDate(row['Framework Agreement Date'])}</td>
+            <td>${formatDate(row['Commencement Date'])}</td>
+            <td>${row['Term (Years)'] || 'N/A'} years</td>
+            <td>${row['Current Task Order'] || 'N/A'}</td>
+            <td>${row['Regions of Operation'] || 'N/A'}</td>
+            <td>${row['Key Personnel'] || 'N/A'}</td>
+            <td><strong>${row['Task Order Price (Y1)'] || 'N/A'}</strong></td>
+            <td><button class="btn-action" onclick="viewPartnerDetails('${row['Partner ID']}')">View</button></td>
+        </tr>
+    `).join('');
+    
+    // Switch to master view to show results
+    document.querySelector('[data-view="master"]').click();
+}
+
+// View Partner Details
+function viewPartnerDetails(partnerId) {
+    const partner = dashboardData.masterRegister.find(p => p['Partner ID'] === partnerId);
+    if (partner) {
+        alert(`Partner Details:\n\nID: ${partner['Partner ID']}\nName: ${partner['Partner Name']}\nStatus: ${partner['Contract Status']}\nRegions: ${partner['Regions of Operation']}`);
+    }
+}
+
+// Utility Functions
+function formatCurrency(amount) {
+    if (!amount) return 'UGX 0';
+    return 'UGX ' + amount.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '-';
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    } catch {
+        return '-';
+    }
+}
+
+// Render External Partners Table
+function renderExternalPartnersTable() {
+    const tbody = document.getElementById('external-tbody');
+    const data = dashboardData.externalPartners || [];
+    
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center">No external partners data available</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = data.map(row => {
+        // Determine status badge class
+        let statusBadge = 'badge-pending';
+        const status = (row['Status'] || '').toLowerCase();
+        if (status.includes('on track')) statusBadge = 'badge-signed';
+        else if (status.includes('needs attention')) statusBadge = 'badge-pending';
+        else if (status.includes('stalled') || status.includes('blocked')) statusBadge = 'badge-no';
+        
+        return `
+            <tr>
+                <td><strong>${row['Partner Name'] || 'N/A'}</strong></td>
+                <td>${row['Key Contact & Details'] || 'N/A'}</td>
+                <td>${formatDate(row['Date Initiated'])}</td>
+                <td>${row['Current Stage'] || 'N/A'}</td>
+                <td>${row['Key Objectives / Focus Areas'] || 'N/A'}</td>
+                <td><span class="badge ${statusBadge}">${row['Status'] || 'N/A'}</span></td>
+                <td>${row['Pending Tasks & Next Steps'] || 'N/A'}</td>
+                <td>${row['Responsible Person(s)'] || 'N/A'}</td>
+                <td><strong>${row['Deadline'] || 'N/A'}</strong></td>
+                <td>${row['Notes & Blockers'] || '-'}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Export functionality (placeholder)
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('btn-export')) {
+        alert('Export functionality would download the current view as CSV/Excel');
+    }
+});
+</script>
+</body>
+</html>

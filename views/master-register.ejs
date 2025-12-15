@@ -1,0 +1,189 @@
+<%- include('partials/head', { title: 'Master Partner Register - Partner Dashboard' , additionalCSS:
+    ['/css/master-register.css', '/css/components/tables.css' ] }) %>
+
+
+    <!-- Add this just after the head include -->
+    <div style="display:none">
+        <%= JSON.stringify(partners) %>
+    </div>
+
+
+    <div class="dashboard-layout">
+        <%- include('partials/sidebar', { title: 'Master Partner Register - Partner Dashboard' }) %>
+
+            <div class="main-content">
+                <div class="content-area">
+                    <!-- Page Header -->
+                    <div class="page-header">
+                        <div class="page-header-content">
+                            <h1 class="page-title">Master Partner Register</h1>
+                            <p class="page-subtitle">Real-time partner and contract management</p>
+                        </div>
+                    </div>
+
+                    <!-- Page Controls -->
+                    <div class="page-controls">
+                        <div class="search-controls">
+                            <div class="search-box-extended">
+                                <input type="text" id="partner-search" class="table-search"
+                                    placeholder="Search partners...">
+                                <span class="search-icon">🔍</span>
+                            </div>
+                        </div>
+                        <div class="action-controls">
+                            <a href="/forms/partner" class="btn-primary" id="new-partner">
+                                <span>➕</span>
+                                <span>New Partner</span>
+                            </a>
+                            <button class="btn-refresh" id="refresh-partners">
+                                <span>↻</span>
+                                <span>Refresh</span>
+                            </button>
+                            <button class="btn-export" id="export-partners">
+                                <span>📥</span>
+                                <span>Export</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Master Register Table -->
+                    <div class="table-container">
+                        <div class="table-wrapper">
+                            <pre style="display:none">
+typeof: <%= typeof partners %>
+isArray: <%= Array.isArray(partners) %>
+length: <%= partners && partners.length %>
+</pre>
+                            <table class="data-table" id="master-register-table">
+                                <thead>
+                                    <tr>
+                                        <th>Partner ID</th>
+                                        <th>Partner Name</th>
+                                        <th>Status</th>
+                                        <th>Agreement Date</th>
+                                        <th>Commencement</th>
+                                        <th>Term</th>
+                                        <th>Task Order</th>
+                                        <th>Regions</th>
+                                        <th>Key Personnel</th>
+                                        <th>Price (Y1)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (partners && partners.length> 0) { %>
+                                        <% partners.forEach(partner=> { %>
+                                            <tr>
+                                                <td>
+                                                    <%= partner.id || '-' %>
+                                                </td>
+                                                <td class="partner-name">
+                                                    <%= partner.partnerName || '-' %>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="status-badge <%= (partner.contractStatus === 'Active' || partner.contractStatus === 'Signed') ? 'signed' : 'contracting' %>">
+                                                        <%= partner.contractStatus || 'Unknown' %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <%= partner.contractStartDate || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= partner.commencementDate || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= partner.contractDuration || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= partner.taskOrderPrice || '-' %>
+                                                </td>
+                                                <td class="regions-cell">
+                                                    <span class="regions-text">
+                                                        <%= partner.regionsOfOperation || '-' %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <%= partner.keyPersonnelFormatted || partner.keyPersonnel || '-' %>
+                                                </td>
+                                                <td class="price-cell">
+                                                    <span class="price-amount">
+                                                        <%= partner.contractValue || partner.taskOrderPrice || '-' %>
+                                                    </span>
+                                                </td>
+                                                <td class="actions-cell">
+                                                    <button class="action-btn view-btn" data-partner-id="<%= partner.id %>">View</button>
+                                                    <a href="/forms/partner/<%= partner.id %>/edit"
+                                                        class="action-btn edit">
+                                                        Edit
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="11" class="no-data">
+                                                            <div class="empty-state">
+                                                                <div class="empty-icon">📋</div>
+                                                                <div class="empty-text">No partners found</div>
+                                                                <div class="empty-subtext">Partners will appear here
+                                                                    once data is loaded</div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Table Info -->
+                    <div class="table-info">
+                        <div class="table-stats">
+                            <span class="stat-item">
+                                <strong id="total-count">
+                                    <%= partners ? partners.length : 0 %>
+                                </strong>
+                                partners total
+                            </span>
+                            <span class="stat-item">
+                                <strong id="signed-count">
+                                    <%= partners ? partners.filter(p=> p.contractStatus === 'Active' || p.contractStatus
+                                        === 'Signed').length : 0 %>
+                                </strong>
+                                signed contracts
+                            </span>
+                            <span class="stat-item">
+                                <strong id="filtered-count">
+                                    <%= partners ? partners.length : 0 %>
+                                </strong>
+                                showing
+                            </span>
+                        </div>
+                        <div class="pagination">
+                            <!-- Pagination controls would go here -->
+                            <span class="page-info">Page 1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <%- include('partials/footer', { additionalJS: ['/js/master-register.js'] }) %>
+
+<script>
+    // Pass data to frontend JavaScript
+    window.masterRegisterData = {
+        partners: <%- JSON.stringify((typeof jsData !== 'undefined' && jsData.partners) ? jsData.partners : (partners || [])) %>,
+        stats: <%- JSON.stringify((typeof jsData !== 'undefined' && jsData.stats) ? jsData.stats : (stats || {})) %>,
+        total: <%- JSON.stringify((typeof jsData !== 'undefined' && jsData.total) ? jsData.total : (typeof total !== 'undefined' ? total : (partners ? partners.length : 0))) %>
+    };
+</script>
+
+<script>
+    // Ensure viewPartner is always available for inline onclick
+    window.viewPartner = function(partnerId) {
+        // Redirect to the report page instead of the view page
+        window.location.href = '/forms/partner/' + partnerId + '/report';
+    };
+</script>

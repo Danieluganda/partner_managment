@@ -1,0 +1,342 @@
+<%- include('../partials/head', { 
+    title: (mode === 'edit' ? 'Edit External Partner' : 'Add External Partner') + ' - Partner Dashboard',
+    additionalCSS: ['/css/forms/external-partner-form.css']
+}) %>
+
+<div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <div class="content-area">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">
+                        <%= mode === 'edit' ? 'Edit External Partner' : 'Add New External Partner' %>
+                    </h1>
+                    <p class="page-subtitle">
+                        <%= mode === 'edit' ? 'Update partnership details and tracking information' : 'Create a new external partnership record' %>
+                    </p>
+                </div>
+            </div>
+
+            <!-- External Partner Form -->
+            <div class="form-container">
+                <form id="externalPartnerForm" class="external-partner-form" 
+                      data-mode="<%= mode %>" 
+                      <% if (mode === 'edit' && partnerId) { %>data-partner-id="<%= partnerId %>"<% } %>>
+                    
+                    <!-- Basic Partnership Information -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="section-icon">🤝</span>
+                                Partnership Information
+                            </h2>
+                            <p class="section-description">Basic details about the external partnership opportunity</p>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="partnerName" class="form-label required">Partner Name</label>
+                                <input 
+                                    type="text" 
+                                    id="partnerName" 
+                                    name="partnerName" 
+                                    class="form-input" 
+                                    placeholder="Enter partner organization name"
+                                    required
+                                    <% if (mode === 'edit' && locals.partnerData) { %>value="<%= partnerData.partnerName || '' %>"<% } %>
+                                >
+                                <div class="form-help">Official name of the partner organization</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="partnerType" class="form-label required">Partnership Type</label>
+                                <select id="partnerType" name="partnerType" class="form-select" required>
+                                    <option value="">Select partnership type</option>
+                                    <option value="strategic" <% if (mode === 'edit' && locals.partnerData && partnerData.partnerType === 'strategic') { %>selected<% } %>>Strategic Alliance</option>
+                                    <option value="technology" <% if (mode === 'edit' && locals.partnerData && partnerData.partnerType === 'technology') { %>selected<% } %>>Technology Partner</option>
+                                    <option value="implementation" <% if (mode === 'edit' && locals.partnerData && partnerData.partnerType === 'implementation') { %>selected<% } %>>Implementation Partner</option>
+                                    <option value="reseller" <% if (mode === 'edit' && locals.partnerData && partnerData.partnerType === 'reseller') { %>selected<% } %>>Reseller/Channel</option>
+                                    <option value="integration" <% if (mode === 'edit' && locals.partnerData && partnerData.partnerType === 'integration') { %>selected<% } %>>Integration Partner</option>
+                                    <option value="consulting" <% if (mode === 'edit' && locals.partnerData && partnerData.partnerType === 'consulting') { %>selected<% } %>>Consulting Partner</option>
+                                    <option value="vendor" <% if (mode === 'edit' && locals.partnerData && partnerData.partnerType === 'vendor') { %>selected<% } %>>Vendor/Supplier</option>
+                                    <option value="other" <% if (mode === 'edit' && locals.partnerData && partnerData.partnerType === 'other') { %>selected<% } %>>Other</option>
+                                </select>
+                                <div class="form-help">Type of partnership relationship</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="keyContact" class="form-label required">Key Contact</label>
+                                <input 
+                                    type="text" 
+                                    id="keyContact" 
+                                    name="keyContact" 
+                                    class="form-input" 
+                                    placeholder="Primary contact person"
+                                    required
+                                    <% if (mode === 'edit' && locals.partnerData) { %>value="<%= partnerData.keyContact || '' %>"<% } %>
+                                >
+                                <div class="form-help">Main point of contact at partner organization</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contactEmail" class="form-label required">Contact Email</label>
+                                <input 
+                                    type="email" 
+                                    id="contactEmail" 
+                                    name="contactEmail" 
+                                    class="form-input" 
+                                    placeholder="contact@partner.com"
+                                    required
+                                    <% if (mode === 'edit' && locals.partnerData) { %>value="<%= partnerData.contactEmail || '' %>"<% } %>
+                                >
+                                <div class="form-help">Primary email for communication</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contactPhone" class="form-label">Contact Phone</label>
+                                <input 
+                                    type="tel" 
+                                    id="contactPhone" 
+                                    name="contactPhone" 
+                                    class="form-input" 
+                                    placeholder="+1 (555) 123-4567"
+                                    <% if (mode === 'edit' && locals.partnerData) { %>value="<%= partnerData.contactPhone || '' %>"<% } %>
+                                >
+                                <div class="form-help">Phone number for direct contact</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="dateInitiated" class="form-label required">Date Initiated</label>
+                                <input 
+                                    type="date" 
+                                    id="dateInitiated" 
+                                    name="dateInitiated" 
+                                    class="form-input" 
+                                    required
+                                    <% if (mode === 'edit' && locals.partnerData) { %>value="<%= partnerData.dateInitiated || '' %>"<% } %>
+                                >
+                                <div class="form-help">When partnership discussions began</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Partnership Status & Progress -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="section-icon">📊</span>
+                                Status & Progress
+                            </h2>
+                            <p class="section-description">Current stage and status of the partnership</p>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="currentStage" class="form-label required">Current Stage</label>
+                                <select id="currentStage" name="currentStage" class="form-select" required>
+                                    <option value="">Select current stage</option>
+                                    <option value="initiation" <% if (mode === 'edit' && locals.partnerData && partnerData.currentStage === 'initiation') { %>selected<% } %>>Initiation</option>
+                                    <option value="negotiation" <% if (mode === 'edit' && locals.partnerData && partnerData.currentStage === 'negotiation') { %>selected<% } %>>Negotiation</option>
+                                    <option value="due-diligence" <% if (mode === 'edit' && locals.partnerData && partnerData.currentStage === 'due-diligence') { %>selected<% } %>>Due Diligence</option>
+                                    <option value="contract-review" <% if (mode === 'edit' && locals.partnerData && partnerData.currentStage === 'contract-review') { %>selected<% } %>>Contract Review</option>
+                                    <option value="approval" <% if (mode === 'edit' && locals.partnerData && partnerData.currentStage === 'approval') { %>selected<% } %>>Approval</option>
+                                    <option value="execution" <% if (mode === 'edit' && locals.partnerData && partnerData.currentStage === 'execution') { %>selected<% } %>>Execution</option>
+                                    <option value="ongoing" <% if (mode === 'edit' && locals.partnerData && partnerData.currentStage === 'ongoing') { %>selected<% } %>>Ongoing</option>
+                                    <option value="review" <% if (mode === 'edit' && locals.partnerData && partnerData.currentStage === 'review') { %>selected<% } %>>Review</option>
+                                </select>
+                                <div class="form-help">Current stage in partnership lifecycle</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="status" class="form-label required">Status</label>
+                                <select id="status" name="status" class="form-select" required>
+                                    <option value="">Select status</option>
+                                    <option value="on-track" <% if (mode === 'edit' && locals.partnerData && partnerData.status === 'on-track') { %>selected<% } %>>On Track</option>
+                                    <option value="at-risk" <% if (mode === 'edit' && locals.partnerData && partnerData.status === 'at-risk') { %>selected<% } %>>At Risk</option>
+                                    <option value="delayed" <% if (mode === 'edit' && locals.partnerData && partnerData.status === 'delayed') { %>selected<% } %>>Delayed</option>
+                                    <option value="blocked" <% if (mode === 'edit' && locals.partnerData && partnerData.status === 'blocked') { %>selected<% } %>>Blocked</option>
+                                    <option value="completed" <% if (mode === 'edit' && locals.partnerData && partnerData.status === 'completed') { %>selected<% } %>>Completed</option>
+                                </select>
+                                <div class="form-help">Overall partnership status</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="responsible" class="form-label required">Responsible Person</label>
+                                <select id="responsible" name="responsible" class="form-select" required>
+                                    <option value="">Select responsible person</option>
+                                    <option value="John Anderson" <% if (mode === 'edit' && locals.partnerData && partnerData.responsible === 'John Anderson') { %>selected<% } %>>John Anderson</option>
+                                    <option value="Sarah Mitchell" <% if (mode === 'edit' && locals.partnerData && partnerData.responsible === 'Sarah Mitchell') { %>selected<% } %>>Sarah Mitchell</option>
+                                    <option value="Michael Chen" <% if (mode === 'edit' && locals.partnerData && partnerData.responsible === 'Michael Chen') { %>selected<% } %>>Michael Chen</option>
+                                    <option value="Emily Rodriguez" <% if (mode === 'edit' && locals.partnerData && partnerData.responsible === 'Emily Rodriguez') { %>selected<% } %>>Emily Rodriguez</option>
+                                    <option value="David Kim" <% if (mode === 'edit' && locals.partnerData && partnerData.responsible === 'David Kim') { %>selected<% } %>>David Kim</option>
+                                </select>
+                                <div class="form-help">Person responsible for managing this partnership</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="deadline" class="form-label">Target Deadline</label>
+                                <input 
+                                    type="date" 
+                                    id="deadline" 
+                                    name="deadline" 
+                                    class="form-input"
+                                    <% if (mode === 'edit' && locals.partnerData) { %>value="<%= partnerData.deadline || '' %>"<% } %>
+                                >
+                                <div class="form-help">Target completion or milestone date</div>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="keyObjectives" class="form-label required">Key Objectives</label>
+                                <textarea 
+                                    id="keyObjectives" 
+                                    name="keyObjectives" 
+                                    class="form-textarea" 
+                                    rows="3"
+                                    placeholder="Describe the main objectives and goals of this partnership..."
+                                    required
+                                ><% if (mode === 'edit' && locals.partnerData) { %><%= partnerData.keyObjectives || '' %><% } %></textarea>
+                                <div class="form-help">Primary goals and expected outcomes</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tasks & Activities -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="section-icon">✅</span>
+                                Tasks & Activities
+                            </h2>
+                            <p class="section-description">Current tasks and planned activities</p>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="pendingTasks" class="form-label">Pending Tasks</label>
+                                <textarea 
+                                    id="pendingTasks" 
+                                    name="pendingTasks" 
+                                    class="form-textarea" 
+                                    rows="4"
+                                    placeholder="List current pending tasks and action items..."
+                                ><% if (mode === 'edit' && locals.partnerData) { %><%= partnerData.pendingTasks || '' %><% } %></textarea>
+                                <div class="form-help">Tasks that need to be completed</div>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="notesBlockers" class="form-label">Notes & Blockers</label>
+                                <textarea 
+                                    id="notesBlockers" 
+                                    name="notesBlockers" 
+                                    class="form-textarea" 
+                                    rows="4"
+                                    placeholder="Add notes, concerns, blockers, or important information..."
+                                ><% if (mode === 'edit' && locals.partnerData) { %><%= partnerData.notesBlockers || '' %><% } %></textarea>
+                                <div class="form-help">Important notes, issues, or blockers</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="section-icon">📋</span>
+                                Additional Information
+                            </h2>
+                            <p class="section-description">Optional details and metadata</p>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="estimatedValue" class="form-label">Estimated Partnership Value</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">UGX</span>
+                                    <input 
+                                        type="text" 
+                                        id="estimatedValue" 
+                                        name="estimatedValue" 
+                                        class="form-input" 
+                                        placeholder="0.00"
+                                        data-currency="true"
+                                        <% if (mode === 'edit' && locals.partnerData) { %>value="<%= partnerData.estimatedValue || '' %>"<% } %>
+                                    >
+                                </div>
+                                <div class="form-help">Estimated financial value of partnership</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="priority" class="form-label">Priority Level</label>
+                                <select id="priority" name="priority" class="form-select">
+                                    <option value="">Select priority</option>
+                                    <option value="low" <% if (mode === 'edit' && locals.partnerData && partnerData.priority === 'low') { %>selected<% } %>>Low</option>
+                                    <option value="medium" <% if (mode === 'edit' && locals.partnerData && partnerData.priority === 'medium') { %>selected<% } %>>Medium</option>
+                                    <option value="high" <% if (mode === 'edit' && locals.partnerData && partnerData.priority === 'high') { %>selected<% } %>>High</option>
+                                    <option value="critical" <% if (mode === 'edit' && locals.partnerData && partnerData.priority === 'critical') { %>selected<% } %>>Critical</option>
+                                </select>
+                                <div class="form-help">Business priority level</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="region" class="form-label">Region/Location</label>
+                                <input 
+                                    type="text" 
+                                    id="region" 
+                                    name="region" 
+                                    class="form-input" 
+                                    placeholder="Geographic region or location"
+                                    <% if (mode === 'edit' && locals.partnerData) { %>value="<%= partnerData.region || '' %>"<% } %>
+                                >
+                                <div class="form-help">Geographic focus or location</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="tags" class="form-label">Tags</label>
+                                <input 
+                                    type="text" 
+                                    id="tags" 
+                                    name="tags" 
+                                    class="form-input" 
+                                    placeholder="tag1, tag2, tag3"
+                                    <% if (mode === 'edit' && locals.partnerData) { %>value="<%= partnerData.tags || '' %>"<% } %>
+                                >
+                                <div class="form-help">Comma-separated tags for categorization</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <div class="actions-left">
+                            <button type="button" id="saveDraftBtn" class="btn btn-outline">
+                                <span>💾</span>
+                                <span>Save Draft</span>
+                            </button>
+                        </div>
+                        <div class="actions-right">
+                            <button type="button" id="cancelBtn" class="btn btn-secondary">
+                                <span>✕</span>
+                                <span>Cancel</span>
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <span><%= mode === 'edit' ? '💾' : '✅' %></span>
+                                <span><%= mode === 'edit' ? 'Update Partner' : 'Create Partner' %></span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<% if (locals.additionalJS) { %>
+    <% additionalJS.forEach(function(js) { %>
+        <script src="<%= js %>"></script>
+    <% }); %>
+<% } %>

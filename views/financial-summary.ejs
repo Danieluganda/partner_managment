@@ -1,0 +1,247 @@
+<%- include('partials/head', { 
+    title: 'Financial Summary - Partner Dashboard',
+    additionalCSS: ['/css/financial-summary.css', '/css/components/tables.css']
+}) %>
+
+<div class="dashboard-layout">
+    <%- include('partials/sidebar') %>
+    
+    <div class="main-content">
+        <div class="content-area">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">Financial Summary</h1>
+                    <p class="page-subtitle">Contract values, payments, and financial tracking</p>
+                </div>
+            </div>
+
+            <!-- Financial Controls -->
+            <div class="financial-controls">
+                <div class="search-section">
+                    <div class="search-box-financial">
+                        <span class="search-icon">🔍</span>
+                        <input 
+                            type="text" 
+                            id="financialSearch" 
+                            class="table-search" 
+                            placeholder="Search partners..."
+                        >
+                    </div>
+                </div>
+                
+                <div class="action-section">
+                    <button id="refreshBtn" class="btn-action refresh">
+                        <span class="icon">↻</span>
+                        <span>Refresh</span>
+                    </button>
+                    <div class="search-quick">
+                        <span class="search-icon">🔍</span>
+                        <input 
+                            type="text" 
+                            id="quickSearch" 
+                            class="quick-search-input" 
+                            placeholder="Search..."
+                        >
+                    </div>
+                    <button id="exportFinancialBtn" class="btn-export">
+                        <span class="icon">📥</span>
+                        <span>Export</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Financial Summary Stats -->
+            <div class="financial-stats-grid">
+                <div class="stat-card total-contracts">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="totalContracts">0</h3>
+                        <p class="stat-label">Total Contracts</p>
+                    </div>
+                </div>
+                <div class="stat-card total-value">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="totalValue">UGX 0</h3>
+                        <p class="stat-label">Total Contract Value</p>
+                    </div>
+                </div>
+                <div class="stat-card total-disbursed">
+                    <div class="stat-icon">📤</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="totalDisbursed">UGX 0</h3>
+                        <p class="stat-label">Total Disbursed</p>
+                    </div>
+                </div>
+                <div class="stat-card avg-utilization">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="avgUtilization">0%</h3>
+                        <p class="stat-label">Avg. Utilization</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Summary Table -->
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table class="data-table financial-table" id="financialTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="partnerId">
+                                    Partner ID
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="partnerName">
+                                    Partner Name
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable numeric" data-sort="totalPrice">
+                                    Total Price
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable numeric" data-sort="q1Paid">
+                                    Q1 Paid
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable numeric" data-sort="q2Paid">
+                                    Q2 Paid
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable numeric" data-sort="q3Paid">
+                                    Q3 Paid
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable numeric" data-sort="q4Paid">
+                                    Q4 Paid
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable numeric" data-sort="totalDisbursed">
+                                    Total Disbursed
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable numeric" data-sort="utilizationRate">
+                                    Utilization Rate
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th>Comments</th>
+                                <th class="actions-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financialTableBody">
+                            <!-- Table data will be populated by JavaScript -->
+                            <% if (typeof data !== 'undefined' && data.financial && data.financial.length > 0) { %>
+                                <% data.financial.forEach(function(item) { %>
+                                    <tr>
+                                        <td><%= item.partnerId %></td>
+                                        <td>
+                                            <div class="partner-name-cell">
+                                                <%= item.partnerName %>
+                                            </div>
+                                        </td>
+                                        <td class="price-cell">
+                                            <span class="price-amount">
+                                                <%= item.totalPrice ? item.totalPrice : 'UGX 0' %>
+                                            </span>
+                                        </td>
+                                        <td class="payment-cell">
+                                            <span class="payment-amount">
+                                                <%= item.q1Paid || '-' %>
+                                            </span>
+                                        </td>
+                                        <td class="payment-cell">
+                                            <span class="payment-amount">
+                                                <%= item.q2Paid || '-' %>
+                                            </span>
+                                        </td>
+                                        <td class="payment-cell">
+                                            <span class="payment-amount">
+                                                <%= item.q3Paid || '-' %>
+                                            </span>
+                                        </td>
+                                        <td class="payment-cell">
+                                            <span class="payment-amount">
+                                                <%= item.q4Paid || '-' %>
+                                            </span>
+                                        </td>
+                                        <td class="price-cell">
+                                            <span class="disbursed-amount">
+                                                <%= item.totalDisbursed || '-' %>
+                                            </span>
+                                        </td>
+                                        <td class="utilization-cell">
+                                            <div class="utilization-wrapper">
+                                                <span class="utilization-rate <%= (parseFloat(item.utilizationRate) || 0) >= 70 ? 'high' : (parseFloat(item.utilizationRate) || 0) >= 40 ? 'medium' : 'low' %>">
+                                                    <%= item.utilizationRate || '0%' %>
+                                                </span>
+                                                <div class="utilization-bar">
+                                                    <div class="utilization-fill" style="width: <%= item.utilizationRate || '0%' %>"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="comments-cell">
+                                            <span class="comment-text">
+                                                <%= item.comments || '-' %>
+                                            </span>
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="action-btn view" onclick="viewFinancialDetails('<%= item.partnerId %>')">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="11" class="no-data">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">💰</div>
+                                            <div class="empty-text">No financial data available</div>
+                                            <div class="empty-subtext">Financial records will appear here when available</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Table Information Footer -->
+            <div class="table-info">
+                <div class="table-stats">
+                    <div class="stat-item">
+                        Showing <strong id="showingCount">0</strong> of <strong id="totalFinancialCount">0</strong> financial records
+                    </div>
+                    <div class="stat-item">
+                        Total Value: <strong id="footerTotalValue">UGX 0</strong>
+                    </div>
+                    <div class="stat-item">
+                        Total Disbursed: <strong id="footerTotalDisbursed">UGX 0</strong>
+                    </div>
+                </div>
+                
+                <div class="pagination">
+                    <span class="page-info">Page 1 of 1</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <% if (typeof additionalJS !== 'undefined' && additionalJS) { %>
+        <% additionalJS.forEach(function(jsFile) { %>
+            <script src="<%= jsFile %>"></script>
+        <% }); %>
+    <% } %>
+    <script src="/js/financial-summary.js"></script>
+
+    <% if (typeof jsData !== 'undefined' && jsData) { %>
+        <script>
+            window.financialData = <%- JSON.stringify(jsData.financial || []) %>;
+            window.statsData = <%- JSON.stringify(jsData.stats || {}) %>;
+        </script>
+    <% } %>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,453 @@
+<%- include('../partials/head', { title: title || 'Deliverable Details', additionalCSS: ['/css/forms/deliverable-form.css', '/css/components/forms.css'] }) %>
+
+<style>
+  /* visual marker for required fields */
+  .form-label.required::after { content: ' *'; color: #d00; margin-left:6px; font-weight:700; }
+  .required-note { font-size:0.9rem; color:#666; margin:8px 0 16px; }
+</style>
+
+<%
+  // normalize server-side partner arrays (prefer data, fallback to jsData, then partners)
+  const serverPartners = (typeof data !== 'undefined' && Array.isArray(data.partners) && data.partners.length) ? data.partners
+    : (typeof jsData !== 'undefined' && Array.isArray(jsData.partners) && jsData.partners.length) ? jsData.partners
+    : (typeof partners !== 'undefined' && Array.isArray(partners)) ? partners : [];
+
+  const serverExternal = (typeof data !== 'undefined' && Array.isArray(data.externalPartners) && data.externalPartners.length) ? data.externalPartners
+    : (typeof jsData !== 'undefined' && Array.isArray(jsData.externalPartners) && jsData.externalPartners.length) ? jsData.externalPartners
+    : [];
+%>
+
+<div class="dashboard-layout">
+  <%- include('../partials/sidebar') %>
+
+  <div class="main-content">
+    <div class="content-area">
+      <div class="page-header">
+        <div class="page-header-content">
+          <h1 class="page-title"><%= locals.deliverable && deliverable.id ? 'Edit Deliverable' : 'Add New Deliverable' %></h1>
+        </div>
+        <div class="page-actions">
+          <a href="/deliverables-tracker" class="btn btn-secondary">← Back to Tracker</a>
+        </div>
+      </div>
+
+      <div class="form-container">
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
+        <!-- brief note about required fields -->
+        <div class="required-note">Fields marked with <span style="color:#d00;font-weight:700">*</span> are required.</div>
+
+        <form id="deliverableForm" class="deliverable-form" action="/api/deliverables" method="POST" enctype="multipart/form-data">
+          <% if (locals.deliverable && deliverable.id) { %>
+            <input type="hidden" name="_method" value="PUT">
+            <input type="hidden" name="id" value="<%= deliverable.id %>">
+          <% } %>
+
+          <!-- Partner selector -->
+          <div class="form-section">
+            <h3 class="section-title">Deliverable Details</h3>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label required">Associated Partner</label>
+                <div class="partner-select-container">
+                  <div class="searchable-select" id="partnerSelectWrapper" tabindex="0">
+                    <input type="text" id="partnerSearch" class="form-input partner-search" placeholder="Search and select partner..." autocomplete="off" readonly>
+                    <div class="select-arrow" aria-hidden="true">▾</div>
+
+                    <div class="partner-dropdown" id="partnerDropdown" style="display:none;">
+                      <div class="dropdown-search">
+                        <input type="text" id="partnerFilterInput" class="dropdown-search-input" placeholder="Type to filter partners...">
+                      </div>
+                      <div class="dropdown-options" id="partnerOptions">
+                        <% if (serverPartners.length) { %>
+                          <div class="option-group">
+                            <div class="option-group-label">Internal Partners</div>
+                            <% serverPartners.forEach(function(p){ 
+                                 const pid = p.id || p.partnerId || p.uuid || '';
+                                 const pname = p.partnerName || p.name || p.displayName || pid;
+                                 if (!pid) return;
+                            %>
+                              <div class="partner-option" data-value="<%= pid %>" data-name="<%= pname %>" data-type="internal">
+                                <div class="partner-info">
+                                  <div class="partner-name"><%= pname %></div>
+                                  <div class="partner-details">ID: <%= String(pid).substring(0,8) %>... • Internal</div>
+                                </div>
+                              </div>
+                            <% }) %>
+                          </div>
+                        <% } %>
+
+                        <% if (serverExternal.length) { %>
+                          <div class="option-group">
+                            <div class="option-group-label">External Partners</div>
+                            <% serverExternal.forEach(function(p){ 
+                                 const pid = p.id || p.partnerId || p.uuid || '';
+                                 const pname = p.partnerName || p.name || p.displayName || pid;
+                                 if (!pid) return;
+                            %>
+                              <div class="partner-option" data-value="<%= pid %>" data-name="<%= pname %>" data-type="external">
+                                <div class="partner-info">
+                                  <div class="partner-name"><%= pname %></div>
+                                  <div class="partner-details">ID: <%= String(pid).substring(0,8) %>... • External</div>
+                                </div>
+                              </div>
+                            <% }) %>
+                          </div>
+                        <% } %>
+
+                        <% if (!serverPartners.length && !serverExternal.length) { %>
+                          <div class="no-options">No partners found — please add partners first.</div>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- store selected partner values -->
+                  <input type="hidden" id="partnerId" name="partnerId" value="<%= locals.deliverable ? (deliverable.partnerId || '') : '' %>">
+                  <input type="hidden" id="partnerName" name="partnerName" value="<%= locals.deliverable ? (deliverable.partnerName || '') : '' %>">
+
+                  <!-- shadow fields to satisfy different backend field names -->
+                  <!-- keep shadowTitle for JS but remove name to avoid duplicate submission -->
+                  <input type="hidden" id="shadowTitle" value="<%= locals.deliverable ? (deliverable.title || deliverable.description || '') : '' %>">
+                  <input type="hidden" id="shadowDeliverableName" name="deliverableName" value="<%= locals.deliverable ? (deliverable.deliverableNumber || '') : '' %>">
+                  <input type="hidden" id="shadowDueDate" name="dueDate" value="<%= locals.deliverable && deliverable.milestoneDate ? deliverable.milestoneDate.split('T')[0] : '' %>">
+                  <input type="hidden" id="shadowAssignedPerson" name="assignedPerson" value="<%= locals.deliverable ? (deliverable.assignedTo || '') : '' %>">
+                </div>
+              </div>
+
+              <!-- Deliverable fields -->
+              <div class="form-group">
+                <label for="deliverableNumber" class="form-label required">Deliverable Number</label>
+                <input type="text" id="deliverableNumber" name="deliverableNumber" class="form-input" placeholder="e.g., D-001" value="<%= locals.deliverable ? (deliverable.deliverableNumber || '') : '' %>" required>
+              </div>
+
+              <div class="form-group">
+                <label for="deliverableName" class="form-label required">Deliverable Name</label>
+                <input type="text" id="deliverableName" name="title" class="form-input" placeholder="Deliverable name / short title" value="<%= locals.deliverable ? (deliverable.title || deliverable.description || '') : '' %>" required>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="description" class="form-label">Deliverable Description</label>
+                <textarea id="description" name="description" class="form-textarea" rows="3"><%= locals.deliverable ? (deliverable.description || '') : '' %></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="milestoneDate" class="form-label required">Milestone Date</label>
+                <input type="date" id="milestoneDate" name="milestoneDate" class="form-input" value="<%= locals.deliverable && deliverable.milestoneDate ? deliverable.milestoneDate.split('T')[0] : '' %>" required>
+              </div>
+
+              <div class="form-group">
+                <label for="status" class="form-label required">Status</label>
+                <select id="status" name="status" class="form-select" required>
+                  <option value="">-- select --</option>
+                  <option value="pending" <%= locals.deliverable && deliverable.status==='pending' ? 'selected' : '' %>>Pending</option>
+                  <option value="in-progress" <%= locals.deliverable && deliverable.status==='in-progress' ? 'selected' : '' %>>In Progress</option>
+                  <option value="submitted" <%= locals.deliverable && deliverable.status==='submitted' ? 'selected' : '' %>>Submitted</option>
+                  <option value="approved" <%= locals.deliverable && deliverable.status==='approved' ? 'selected' : '' %>>Approved</option>
+                  <option value="rejected" <%= locals.deliverable && deliverable.status==='rejected' ? 'selected' : '' %>>Rejected</option>
+                  <option value="overdue" <%= locals.deliverable && deliverable.status==='overdue' ? 'selected' : '' %>>Overdue</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="actualSubmissionDate" class="form-label">Actual Submission Date</label>
+                <input type="date" id="actualSubmissionDate" name="actualSubmissionDate" class="form-input" value="<%= locals.deliverable && deliverable.actualSubmissionDate ? deliverable.actualSubmissionDate.split('T')[0] : '' %>">
+              </div>
+
+              <div class="form-group full-width">
+                <label for="verificationEvidence" class="form-label">Verification Evidence (URL / reference)</label>
+                <input type="text" id="verificationEvidence" name="verificationEvidence" class="form-input" placeholder="Link or description" value="<%= locals.deliverable ? (deliverable.verificationEvidence || '') : '' %>">
+              </div>
+
+              <div class="form-group">
+                <label for="approvalDate" class="form-label">Approval Date</label>
+                <input type="date" id="approvalDate" name="approvalDate" class="form-input" value="<%= locals.deliverable && deliverable.approvalDate ? deliverable.approvalDate.split('T')[0] : '' %>">
+              </div>
+
+              <div class="form-group">
+                <label for="paymentPercentage" class="form-label">Payment Percentage (%)</label>
+                <input type="number" id="paymentPercentage" name="paymentPercentage" class="form-input" min="0" max="100" step="0.1" value="<%= locals.deliverable ? (deliverable.paymentPercentage || '') : '' %>">
+              </div>
+
+              <div class="form-group">
+                <label for="paymentAmount" class="form-label">Payment Amount</label>
+                <input type="number" id="paymentAmount" name="paymentAmount" class="form-input" min="0" step="0.01" value="<%= locals.deliverable ? (deliverable.paymentAmount || deliverable.value || '') : '' %>">
+              </div>
+
+              <div class="form-group">
+                <label for="paymentStatus" class="form-label">Payment Status</label>
+                <select id="paymentStatus" name="paymentStatus" class="form-select">
+                  <option value="">-- select --</option>
+                  <option value="pending" <%= locals.deliverable && deliverable.paymentStatus==='pending' ? 'selected' : '' %>>Pending</option>
+                  <option value="processing" <%= locals.deliverable && deliverable.paymentStatus==='processing' ? 'selected' : '' %>>Processing</option>
+                  <option value="paid" <%= locals.deliverable && deliverable.paymentStatus==='paid' ? 'selected' : '' %>>Paid</option>
+                  <option value="unpaid" <%= locals.deliverable && deliverable.paymentStatus==='unpaid' ? 'selected' : '' %>>Unpaid</option>
+                  <option value="overdue" <%= locals.deliverable && deliverable.paymentStatus==='overdue' ? 'selected' : '' %>>Overdue</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="assignedTo" class="form-label required">Responsible Person</label>
+                <input type="text" id="assignedTo" name="assignedTo" class="form-input" value="<%= locals.deliverable ? (deliverable.assignedTo || '') : '' %>">
+              </div>
+
+              <div class="form-group full-width">
+                <label for="notes" class="form-label">Notes / Remarks</label>
+                <textarea id="notes" name="notes" class="form-textarea" rows="3"><%= locals.deliverable ? (deliverable.notes || '') : '' %></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+            <button type="reset" class="btn btn-outline">Reset</button>
+            <button type="submit" class="btn btn-primary"><span class="icon">💾</span> Save Deliverable</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <!-- always expose partner arrays to client -->
+  <script>
+    window.partnersData = <%- JSON.stringify((typeof data !== 'undefined' && data.partners) ? data.partners : ((typeof jsData !== 'undefined' && jsData.partners) ? jsData.partners : (partners || []))) %>;
+    window.externalPartnersData = <%- JSON.stringify((typeof data !== 'undefined' && data.externalPartners) ? data.externalPartners : ((typeof jsData !== 'undefined' && jsData.externalPartners) ? jsData.externalPartners : [])) %>;
+    <% if (locals.deliverable) { %>
+      window.deliverableData = <%- JSON.stringify(deliverable) %>;
+    <% } %>
+  </script>
+
+  <script>
+    // client fallback population and simple dropdown behavior
+    (function(){
+      function qs(id){ return document.getElementById(id); }
+      function makeOption(id, name, type){
+        const div = document.createElement('div');
+        div.className = 'partner-option';
+        div.dataset.value = id; div.dataset.name = name; div.dataset.type = type;
+        div.innerHTML = '<div class="partner-info"><div class="partner-name">'+name+'</div><div class="partner-details">ID: '+String(id).substring(0,8)+'... • '+(type==='external'?'External':'Internal')+'</div></div>';
+        div.addEventListener('click', function(e){
+          e.preventDefault(); e.stopPropagation();
+          qs('partnerSearch').value = name;
+          qs('partnerId').value = id;
+          qs('partnerName').value = name;
+          // mark selected
+          document.querySelectorAll('.partner-option.selected').forEach(o=>o.classList.remove('selected'));
+          div.classList.add('selected');
+          qs('partnerDropdown').style.display = 'none';
+        });
+        return div;
+      }
+
+      document.addEventListener('DOMContentLoaded', function(){
+        try{
+          const container = qs('partnerOptions');
+          if (!container) return;
+          // populate only if server didn't
+          if (!container.querySelectorAll('.partner-option').length) {
+            const partners = Array.isArray(window.partnersData) ? window.partnersData : [];
+            const external = Array.isArray(window.externalPartnersData) ? window.externalPartnersData : [];
+
+            if (partners.length) {
+              const g = document.createElement('div'); g.className='option-group';
+              const lbl = document.createElement('div'); lbl.className='option-group-label'; lbl.textContent='Internal Partners';
+              g.appendChild(lbl);
+              partners.forEach(p=>{
+                const id = p.id || p.partnerId || p.uuid || '';
+                const name = p.partnerName || p.name || p.displayName || id;
+                if (!id) return;
+                g.appendChild(makeOption(id, name, 'internal'));
+              });
+              container.appendChild(g);
+            }
+
+            if (external.length) {
+              const g2 = document.createElement('div'); g2.className='option-group';
+              const lbl2 = document.createElement('div'); lbl2.className='option-group-label'; lbl2.textContent='External Partners';
+              g2.appendChild(lbl2);
+              external.forEach(p=>{
+                const id = p.id || p.partnerId || p.uuid || '';
+                const name = p.partnerName || p.name || p.displayName || id;
+                if (!id) return;
+                g2.appendChild(makeOption(id, name, 'external'));
+              });
+              container.appendChild(g2);
+            }
+          }
+
+          // toggle dropdown
+          const wrapper = qs('partnerSelectWrapper');
+          const dropdown = qs('partnerDropdown');
+          if (wrapper && dropdown) {
+            wrapper.addEventListener('click', function(e){
+              e.stopPropagation();
+              dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+              qs('partnerFilterInput').focus();
+            });
+            document.addEventListener('click', ()=> dropdown.style.display = 'none');
+
+            // filter input
+            qs('partnerFilterInput').addEventListener('input', function(){
+              const q = this.value.toLowerCase().trim();
+              document.querySelectorAll('#partnerOptions .partner-option').forEach(opt=>{
+                const name = (opt.dataset.name || '').toLowerCase();
+                opt.style.display = name.indexOf(q) === -1 ? 'none' : '';
+              });
+            });
+          }
+        }catch(e){ console.error('partner populate error', e); }
+      });
+    })();
+  </script>
+
+  <script src="/js/forms/deliverable-form.js"></script>
+
+  <script>
+    (function(){
+      function qs(id){ return document.getElementById(id); }
+
+      // sync visible -> shadow fields
+      function syncFields(){
+        const dName = qs('deliverableName');
+        const desc = qs('description');
+        const deliverableNumber = qs('deliverableNumber');
+        const milestone = qs('milestoneDate');
+        const assigned = qs('assignedTo');
+
+        // keep shadowTitle in-sync for older scripts but visible input 'title' will be submitted
+        if (qs('shadowTitle') && dName) qs('shadowTitle').value = dName.value.trim();
+        if (qs('shadowDeliverableName') && deliverableNumber) qs('shadowDeliverableName').value = deliverableNumber.value.trim();
+        if (qs('shadowDueDate') && milestone) qs('shadowDueDate').value = milestone.value;
+        if (qs('shadowAssignedPerson') && assigned) qs('shadowAssignedPerson').value = assigned.value.trim();
+      }
+
+      document.addEventListener('DOMContentLoaded', function(){
+        // keep shadows in sync as user types/changes
+        ['deliverableName','description','deliverableNumber','milestoneDate','assignedTo'].forEach(id=>{
+          const el = qs(id);
+          if (!el) return;
+          el.addEventListener('input', syncFields);
+          el.addEventListener('change', syncFields);
+        });
+
+        // final validation / sync before submit
+        const form = qs('deliverableForm');
+        if (!form) return;
+        form.addEventListener('submit', function(e){
+          syncFields(); // final sync
+          // basic client-side required checks (mirror server validation)
+          const missing = [];
+          if (!qs('deliverableName') || !qs('deliverableName').value.trim()) missing.push('Deliverable name');
+          if (!qs('partnerId') || !qs('partnerId').value.trim()) missing.push('Associated Partner');
+          if (!qs('milestoneDate') || !qs('milestoneDate').value) missing.push('Milestone Date');
+          if (!qs('assignedTo') || !qs('assignedTo').value.trim()) missing.push('Responsible Person');
+
+          if (missing.length){
+            e.preventDefault();
+            alert('Please provide required fields:\\n' + missing.join('\\n'));
+            // focus first missing field
+            if (missing[0] === 'Deliverable name') qs('deliverableName').focus();
+            else if (missing[0] === 'Associated Partner') qs('partnerSearch').focus();
+            else if (missing[0] === 'Milestone Date') qs('milestoneDate').focus();
+            else if (missing[0] === 'Responsible Person') qs('assignedTo').focus();
+            return false;
+          }
+        });
+
+        // initial sync
+        syncFields();
+      });
+    })();
+  </script>
+
+  <script>
+    // ensure partner selection always populates hidden fields and shadow sync runs before submit
+    (function(){
+      function qs(id){ return document.getElementById(id); }
+      function onSelectPartner(id, name, type){
+        const search = qs('partnerSearch'), pid = qs('partnerId'), pname = qs('partnerName');
+        if (search) search.value = name || '';
+        if (pid) pid.value = id || '';
+        if (pname) pname.value = name || '';
+        // mark selected option
+        document.querySelectorAll('#partnerOptions .partner-option.selected').forEach(o=>o.classList.remove('selected'));
+        const matched = document.querySelector('#partnerOptions .partner-option[data-value="'+(id||'')+'"]');
+        if (matched) matched.classList.add('selected');
+        // close dropdown
+        const dd = qs('partnerDropdown');
+        if (dd) dd.style.display = 'none';
+      }
+
+      function syncShadowFields(){
+        const desc = qs('description'), dnum = qs('deliverableNumber'), milestone = qs('milestoneDate'), assigned = qs('assignedTo');
+        if (qs('shadowTitle') && desc) qs('shadowTitle').value = desc.value.trim();
+        if (qs('shadowDeliverableName') && dnum) qs('shadowDeliverableName').value = dnum.value.trim();
+        if (qs('shadowDueDate') && milestone) qs('shadowDueDate').value = milestone.value || '';
+        if (qs('shadowAssignedPerson') && assigned) qs('shadowAssignedPerson').value = assigned.value.trim();
+      }
+
+      document.addEventListener('DOMContentLoaded', function(){
+        try{
+          const container = qs('partnerOptions');
+          if (container) {
+            // delegation: handle clicks on existing and future .partner-option
+            container.addEventListener('click', function(e){
+              const opt = e.target.closest && e.target.closest('.partner-option');
+              if (!opt) return;
+              e.preventDefault(); e.stopPropagation();
+              onSelectPartner(opt.dataset.value, opt.dataset.name, opt.dataset.type);
+            });
+          }
+
+          // if deliverable already has values, pre-fill visible search and mark selected
+          if (window.deliverableData) {
+            const d = window.deliverableData;
+            if (d.partnerId || d.partnerName) {
+              onSelectPartner(d.partnerId || d.partnerId, d.partnerName || d.partnerName);
+            }
+            // also populate shadow fields from deliverableData
+            if (d.title && qs('shadowTitle')) qs('shadowTitle').value = d.title;
+            if (d.deliverableNumber && qs('shadowDeliverableName')) qs('shadowDeliverableName').value = d.deliverableNumber;
+            if (d.milestoneDate && qs('shadowDueDate')) qs('shadowDueDate').value = (d.milestoneDate||'').split('T')[0];
+            if (d.assignedTo && qs('shadowAssignedPerson')) qs('shadowAssignedPerson').value = d.assignedTo;
+            if (d.title && qs('description')) qs('description').value = d.title;
+            if (d.deliverableNumber && qs('deliverableNumber')) qs('deliverableNumber').value = d.deliverableNumber;
+            if (d.milestoneDate && qs('milestoneDate')) qs('milestoneDate').value = (d.milestoneDate||'').split('T')[0];
+            if (d.assignedTo && qs('assignedTo')) qs('assignedTo').value = d.assignedTo;
+          }
+
+          // wire submit to sync shadows and ensure partner hidden exists
+          const form = qs('deliverableForm');
+          if (form) {
+            form.addEventListener('submit', function(e){
+              syncShadowFields();
+              // quick client-side check to avoid known server errors
+              const missing = [];
+              if (!qs('shadowTitle') || !qs('shadowTitle').value.trim()) missing.push('Deliverable name');
+              if (!qs('partnerName') || !qs('partnerName').value.trim()) missing.push('Partner name');
+              if (!qs('shadowDueDate') || !qs('shadowDueDate').value) missing.push('Due date');
+              if (!qs('shadowAssignedPerson') || !qs('shadowAssignedPerson').value.trim()) missing.push('Assigned person');
+              if (missing.length){
+                e.preventDefault();
+                alert('Please provide required fields:\\n' + missing.join('\\n'));
+                // focus first missing visible field
+                if (missing[0].includes('Deliverable')) qs('description')?.focus();
+                else if (missing[0].includes('Partner')) qs('partnerSearch')?.focus();
+                else if (missing[0].includes('Due')) qs('milestoneDate')?.focus();
+                else if (missing[0].includes('Assigned')) qs('assignedTo')?.focus();
+                return false;
+              }
+            });
+          }
+        }catch(err){
+          console.error('deliverable form helper error', err);
+        }
+      });
+    })();
+  </script>
+</div>

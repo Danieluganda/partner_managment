@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Management Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Partner Dashboard</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-view="overview">
+                    <span class="icon">📊</span>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="nav-item" data-view="master">
+                    <span class="icon">📋</span>
+                    <span>Master Register</span>
+                </a>
+                <a href="#" class="nav-item" data-view="financial">
+                    <span class="icon">💰</span>
+                    <span>Financial Summary</span>
+                </a>
+                <a href="#" class="nav-item" data-view="deliverables">
+                    <span class="icon">✅</span>
+                    <span>Deliverables</span>
+                </a>
+                <a href="#" class="nav-item" data-view="compliance">
+                    <span class="icon">📑</span>
+                    <span>Compliance</span>
+                </a>
+                <a href="#" class="nav-item" data-view="personnel">
+                    <span class="icon">👥</span>
+                    <span>Key Personnel</span>
+                </a>
+                <a href="#" class="nav-item" data-view="external">
+                    <span class="icon">🤝</span>
+                    <span>External Partners</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 id="page-title">Dashboard Overview</h1>
+                    <p id="page-subtitle">Real-time partner and contract management</p>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Search partners...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <button class="btn-refresh" id="refresh-btn">↻ Refresh</button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Overview View -->
+                <div id="overview-view" class="view active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-content">
+                                <h3 id="total-partners">0</h3>
+                                <p>Total Partners</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🤝</div>
+                            <div class="stat-content">
+                                <h3 id="external-partners-count">0</h3>
+                                <p>External Partners</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-content">
+                                <h3 id="active-contracts">0</h3>
+                                <p>Active Contracts</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💵</div>
+                            <div class="stat-content">
+                                <h3 id="total-budget">UGX 0</h3>
+                                <p>Total Budget</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Contract Status Distribution</h3>
+                            <canvas id="contractStatusChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Regional Coverage</h3>
+                            <canvas id="regionalChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity">
+                        <h3>Recent Partners</h3>
+                        <div id="recent-partners-list"></div>
+                    </div>
+                </div>
+
+                <!-- Master Register View -->
+                <div id="master-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="master-search" class="table-search" placeholder="Search partners...">
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="master-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner ID</th>
+                                    <th>Partner Name</th>
+                                    <th>Status</th>
+                                    <th>Agreement Date</th>
+                                    <th>Commencement</th>
+                                    <th>Term</th>
+                                    <th>Task Order</th>
+                                    <th>Regions</th>
+                                    <th>Key Personnel</th>
+                                    <th>Price (Y1)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Financial Summary View -->
+                <div id="financial-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="financial-search" class="table-search" placeholder="Search...">
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="financial-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner ID</th>
+                                    <th>Partner Name</th>
+                                    <th>Total Price</th>
+                                    <th>Q1 Paid</th>
+                                    <th>Q2 Paid</th>
+                                    <th>Q3 Paid</th>
+                                    <th>Q4 Paid</th>
+                                    <th>Total Disbursed</th>
+                                    <th>Utilization Rate</th>
+                                    <th>Comments</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financial-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Deliverables View -->
+                <div id="deliverables-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="deliverables-search" class="table-search" placeholder="Search deliverables...">
+                        <select id="status-filter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="submitted">Submitted</option>
+                            <option value="approved">Approved</option>
+                        </select>
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="deliverables-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner ID</th>
+                                    <th>Partner Name</th>
+                                    <th>Deliverable #</th>
+                                    <th>Description</th>
+                                    <th>Milestone Date</th>
+                                    <th>Status</th>
+                                    <th>Actual Submission</th>
+                                    <th>Approval Date</th>
+                                    <th>% Payment</th>
+                                    <th>Payment Amount</th>
+                                    <th>Payment Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deliverables-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Compliance View -->
+                <div id="compliance-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="compliance-search" class="table-search" placeholder="Search requirements...">
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="compliance-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner ID</th>
+                                    <th>Partner Name</th>
+                                    <th>Requirement</th>
+                                    <th>Due Date</th>
+                                    <th>Reporting Period</th>
+                                    <th>Submission Date</th>
+                                    <th>Status</th>
+                                    <th>FMCS Audit</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compliance-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Key Personnel View -->
+                <div id="personnel-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="personnel-search" class="table-search" placeholder="Search personnel...">
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="personnel-grid" id="personnel-grid">
+                        <!-- Personnel cards will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- External Partners View -->
+                <div id="external-view" class="view">
+                    <div class="table-controls">
+                        <input type="text" id="external-search" class="table-search" placeholder="Search external partners...">
+                        <select id="stage-filter" class="filter-select">
+                            <option value="">All Stages</option>
+                            <option value="exploratory">Exploratory</option>
+                            <option value="mou">MoU Drafting</option>
+                            <option value="review">Internal Review</option>
+                            <option value="partner-review">Partner Review</option>
+                            <option value="sign-off">Final Sign-Off</option>
+                            <option value="activation">Post-MoU Activation</option>
+                        </select>
+                        <select id="external-status-filter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="on-track">On Track</option>
+                            <option value="needs-attention">Needs Attention</option>
+                            <option value="stalled">Stalled / Blocked</option>
+                            <option value="not-started">Not Started</option>
+                        </select>
+                        <button class="btn-export">📥 Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="external-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner Name</th>
+                                    <th>Key Contact</th>
+                                    <th>Date Initiated</th>
+                                    <th>Current Stage</th>
+                                    <th>Key Objectives</th>
+                                    <th>Status</th>
+                                    <th>Pending Tasks</th>
+                                    <th>Responsible</th>
+                                    <th>Deadline</th>
+                                    <th>Notes & Blockers</th>
+                                </tr>
+                            </thead>
+                            <tbody id="external-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>

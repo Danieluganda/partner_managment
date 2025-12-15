@@ -1,0 +1,16 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/generated/prisma
+
+
+cat > .gitignore <<'EOF'
+node_modules/
+coverage/
+.env
+logs/
+~$*.xlsx
+.vscode/
+data/excel/
+EOF

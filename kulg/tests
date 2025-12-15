@@ -1,0 +1,18 @@
+const fs = require('fs');
+
+process.env.NODE_ENV = 'test';
+
+jest.mock('express', () => {
+    const mockExpress = () => {
+        return {
+            listen: jest.fn(),
+            use: jest.fn(),
+            get: jest.fn(),
+            post: jest.fn(),
+            // Add other methods as needed
+        };
+    };
+    return mockExpress;
+});
+
+fs.writeFileSync = jest.fn();

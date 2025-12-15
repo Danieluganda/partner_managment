@@ -1,0 +1,232 @@
+/* Forms Component CSS */
+
+/* Alert messages */
+.alert {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    border: 1px solid;
+    animation: slideDown 0.3s ease-out;
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border-color: #90caf9;
+}
+
+.alert-success {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    border-color: #81c784;
+}
+
+.alert-error {
+    background-color: #ffebee;
+    color: #c62828;
+    border-color: #ef5350;
+}
+
+.alert-icon {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.alert-message {
+    flex: 1;
+}
+
+/* Form errors */
+.form-error {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.form-error::before {
+    content: "⚠️";
+    margin-right: 5px;
+    font-size: 12px;
+}
+
+/* Form field states */
+.form-input.error,
+.form-select.error,
+.form-textarea.error {
+    border-color: #d32f2f;
+    background-color: #ffebee;
+}
+
+.form-input.success,
+.form-select.success,
+.form-textarea.success {
+    border-color: #388e3c;
+    background-color: #e8f5e8;
+}
+
+/* Loading states */
+.btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn.loading .icon {
+    animation: spin 1s linear infinite;
+}
+
+/* Partner selection */
+.partner-select-wrapper {
+    position: relative;
+}
+
+.partner-search {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.partner-search:focus {
+    outline: none;
+    border-color: #2196f3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.partner-search::placeholder {
+    color: #999;
+}
+
+.partner-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+}
+
+.partner-select-wrapper.open .partner-search {
+    border-radius: 8px 8px 0 0;
+    border-color: #2196f3;
+}
+
+.partner-filter-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    background-color: #f5f5f5;
+}
+
+.partner-filter-input:focus {
+    outline: none;
+    background-color: #fff;
+}
+
+.partner-options {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.option-group {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.option-group:last-child {
+    border-bottom: none;
+}
+
+.option-group-header {
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    font-weight: 600;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.partner-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.partner-option:hover {
+    background-color: #f5f5f5;
+}
+
+.partner-option.selected {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.partner-option.hidden {
+    display: none;
+}
+
+.partner-option-name {
+    font-weight: 500;
+}
+
+.partner-option-type {
+    font-size: 12px;
+    color: #666;
+    background-color: #e0e0e0;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .partner-dropdown {
+        max-height: 200px;
+    }
+    
+    .alert {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+}
