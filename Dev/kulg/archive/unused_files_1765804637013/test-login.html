@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login</title>
+</head>
+<body>
+    <h1>Test Login Form</h1>
+    <form method="POST" action="/auth/login">
+        <p>
+            <label>Email/Username:</label><br>
+            <input type="text" name="usernameOrEmail" required>
+        </p>
+        <p>
+            <label>Password:</label><br>
+            <input type="password" name="password" required>
+        </p>
+        <p>
+            <input type="checkbox" name="rememberMe" id="rememberMe">
+            <label for="rememberMe">Remember me</label>
+        </p>
+        <p>
+            <button type="submit">Sign In</button>
+        </p>
+    </form>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<%- include('../partials/head', { title: title || 'Compliance & Reporting', additionalCSS: ['/css/forms/deliverable-form.css','/css/components/forms.css'] }) %>
+
+<style>
+  .form-label.required::after { content: ' *'; color: #d00; margin-left:6px; font-weight:700; }
+  .required-note { font-size:0.9rem; color:#666; margin:8px 0 16px; }
+</style>
+
+<div class="dashboard-layout">
+  <%- include('../partials/sidebar') %>
+
+  <div class="main-content">
+    <div class="content-area">
+      <div class="page-header">
+        <div class="page-header-content">
+          <h1 class="page-title">Compliance & Reporting Form</h1>
+        </div>
+        <div class="page-actions">
+          <a href="/compliance-reporting" class="btn btn-secondary">← Back to Compliance</a>
+        </div>
+      </div>
+
+      <div class="form-container">
+        <div class="required-note">Fields marked with <span style="color:#d00;font-weight:700">*</span> are required.</div>
+
+        <form id="complianceForm" method="POST" action="/api/compliance" class="deliverable-form" enctype="multipart/form-data">
+          <!-- Partner selector -->
+          <div class="form-section">
+            <h3 class="section-title">Partner</h3>
+
+            <div class="form-grid">
+              <div class="form-group span-2">
+                <label for="partnerSearch" class="form-label required">Partner</label>
+                <div class="partner-select-container">
+                  <div class="searchable-select" id="partnerSelectWrapper" tabindex="0">
+                    <input type="text" id="partnerSearch" class="form-input partner-search" placeholder="Search and select partner..." autocomplete="off" readonly>
+                    <div class="select-arrow" aria-hidden="true">▾</div>
+
+                    <div class="partner-dropdown" id="partnerDropdown" style="display:none;">
+                      <div class="dropdown-search">
+                        <input type="text" id="partnerFilterInput" class="dropdown-search-input" placeholder="Type to filter partners...">
+                      </div>
+                      <div class="dropdown-options" id="partnerOptions">
+                        <!-- server or client will populate partner options -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <input type="hidden" id="partnerId" name="partnerId" value="">
+                  <input type="hidden" id="partnerName" name="partnerName" value="">
+                </div>
+              </div>
+
+              <div class="form-group span-2">
+                <label for="reportingRequirement" class="form-label required">Reporting Requirement</label>
+                <input type="text" id="reportingRequirement" name="reportingRequirement" class="form-input" required maxlength="250" placeholder="e.g., Quarterly Financial Report - Q2 2025">
+              </div>
+
+              <div class="form-group">
+                <label for="dueDate" class="form-label required">Due Date</label>
+                <input type="date" id="dueDate" name="dueDate" class="form-input" required>
+              </div>
+
+              <div class="form-group">
+                <label for="reportingPeriod" class="form-label required">Reporting Period</label>
+                <select id="reportingPeriod" name="reportingPeriod" class="form-select" required>
+                  <option value="">-- select --</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="semi-annual">Semi-Annual</option>
+                  <option value="annual">Annual</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="submissionDate" class="form-label">Submission Date</label>
+                <input type="date" id="submissionDate" name="submissionDate" class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label for="status" class="form-label required">Status</label>
+                <select id="status" name="status" class="form-select" required>
+                  <option value="">-- select --</option>
+                  <option value="pending">Pending</option>
+                  <option value="submitted">Submitted</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="fmcsAuditStatus" class="form-label">FMCS Audit Status</label>
+                <select id="fmcsAuditStatus" name="fmcsAuditStatus" class="form-select">
+                  <option value="">-- select --</option>
+                  <option value="not-applicable">Not applicable</option>
+                  <option value="not-audited">Not audited</option>
+                  <option value="audited-pending">Audited - Pending</option>
+                  <option value="audited-cleared">Audited - Cleared</option>
+                  <option value="audited-issues">Audited - Issues found</option>
+                </select>
+              </div>
+
+              <div class="form-group span-2 full-width">
+                <label for="notes" class="form-label">Notes / Remarks</label>
+                <textarea id="notes" name="notes" class="form-textarea" rows="4" maxlength="2000" placeholder="Any notes or remarks"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+            <button type="reset" class="btn btn-outline">Reset</button>
+            <button type="submit" class="btn btn-primary">Save Compliance</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <!-- expose partners for client-side population -->
+  <script>
+    window.partnersData = <%- JSON.stringify((typeof data !== 'undefined' && data.partners) ? data.partners : ((typeof jsData !== 'undefined' && jsData.partners) ? jsData.partners : (partners || []))) %>;
+    window.externalPartnersData = <%- JSON.stringify((typeof data !== 'undefined' && data.externalPartners) ? data.externalPartners : ((typeof jsData !== 'undefined' && jsData.externalPartners) ? jsData.externalPartners : [])) %>;
+  </script>
+
+  <script>
+    (function(){
+      function qs(id){ return document.getElementById(id); }
+      function makeOption(id,name,type){
+        const div = document.createElement('div');
+        div.className = 'partner-option';
+        div.dataset.value = id;
+        div.dataset.name = name;
+        div.dataset.type = type;
+        div.innerHTML = '<div class="partner-info"><div class="partner-name">'+name+'</div><div class="partner-details">ID: '+String(id).substring(0,8)+'... • '+(type==='external'?'External':'Internal')+'</div></div>';
+        return div;
+      }
+
+      document.addEventListener('DOMContentLoaded', function(){
+        try{
+          const container = qs('partnerOptions');
+          if (!container) return;
+
+          // populate if empty
+          if (!container.querySelectorAll('.partner-option').length) {
+            const partners = Array.isArray(window.partnersData) ? window.partnersData : [];
+            const external = Array.isArray(window.externalPartnersData) ? window.externalPartnersData : [];
+
+            if (partners.length) {
+              const g = document.createElement('div'); g.className='option-group';
+              const lbl = document.createElement('div'); lbl.className='option-group-label'; lbl.textContent='Internal Partners';
+              g.appendChild(lbl);
+              partners.forEach(p=>{
+                const id = p.id || p.partnerId || p.uuid || '';
+                const name = p.partnerName || p.name || p.displayName || id;
+                if (!id) return;
+                g.appendChild(makeOption(id,name,'internal'));
+              });
+              container.appendChild(g);
+            }
+
+            if (external.length) {
+              const g2 = document.createElement('div'); g2.className='option-group';
+              const lbl2 = document.createElement('div'); lbl2.className='option-group-label'; lbl2.textContent='External Partners';
+              g2.appendChild(lbl2);
+              external.forEach(p=>{
+                const id = p.id || p.partnerId || p.uuid || '';
+                const name = p.partnerName || p.name || p.displayName || id;
+                if (!id) return;
+                g2.appendChild(makeOption(id,name,'external'));
+              });
+              container.appendChild(g2);
+            }
+          }
+
+          // delegate selection
+          container.addEventListener('click', function(e){
+            const opt = e.target.closest && e.target.closest('.partner-option');
+            if (!opt) return;
+            const id = opt.dataset.value || '';
+            const name = opt.dataset.name || '';
+            qs('partnerSearch').value = name;
+            qs('partnerId').value = id;
+            qs('partnerName').value = name;
+            container.querySelectorAll('.partner-option.selected').forEach(o=>o.classList.remove('selected'));
+            opt.classList.add('selected');
+            const dd = qs('partnerDropdown'); if (dd) dd.style.display = 'none';
+          });
+
+          // filter input
+          qs('partnerFilterInput')?.addEventListener('input', function(){
+            const q = this.value.toLowerCase().trim();
+            container.querySelectorAll('.partner-option').forEach(opt=>{
+              const name = (opt.dataset.name || '').toLowerCase();
+              opt.style.display = name.indexOf(q) === -1 ? 'none' : '';
+            });
+          });
+
+          // toggle dropdown
+          qs('partnerSelectWrapper')?.addEventListener('click', function(e){
+            e.stopPropagation();
+            const dd = qs('partnerDropdown');
+            if (dd) dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+            qs('partnerFilterInput')?.focus();
+          });
+          document.addEventListener('click', ()=> { const dd = qs('partnerDropdown'); if (dd) dd.style.display = 'none'; });
+        }catch(err){
+          console.error('partner populate error', err);
+        }
+      });
+    })();
+  </script>
+
+    <script src="/js/forms/compliance-form.js"></script>

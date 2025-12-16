@@ -1,0 +1,276 @@
+<%- include('partials/head', { 
+    title: 'Deliverables Tracker - Partner Dashboard',
+    additionalCSS: ['/css/deliverables-tracker.css', '/css/components/tables.css']
+}) %>
+
+<div class="dashboard-layout">
+    <%- include('partials/sidebar') %>
+    
+    <div class="main-content">
+        <div class="content-area">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">Deliverables Tracker</h1>
+                    <p class="page-subtitle">Track milestones, deadlines, and delivery status</p>
+                </div>
+                <div class="page-actions">
+                    <button id="refreshDeliverablesBtn" class="btn btn-secondary">
+                        <span class="icon">↻</span>
+                        <span>Refresh</span>
+                    </button>
+                    <button id="exportDeliverablesBtn" class="btn btn-secondary">
+                        <span class="icon">📥</span>
+                        <span>Export</span>
+                    </button>
+                    <a href="/forms/deliverable" class="btn btn-primary">
+                        <span class="icon">➕</span>
+                        <span>Add Deliverable</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Deliverables Controls -->
+            <div class="deliverables-controls">
+                <div class="search-section">
+                    <div class="search-box-deliverables">
+                        <span class="search-icon">🔍</span>
+                        <input 
+                            type="text" 
+                            id="deliverablesSearch" 
+                            class="table-search" 
+                            placeholder="Search partners..."
+                        >
+                    </div>
+                </div>
+                
+                <div class="action-section">
+                    <button id="refreshDeliverablesBtn" class="btn-action refresh">
+                        <span class="icon">↻</span>
+                        <span>Refresh</span>
+                    </button>
+                    <div class="search-quick">
+                        <input 
+                            type="text" 
+                            id="quickDeliverablesSearch" 
+                            class="quick-search-input" 
+                            placeholder="Search deliverables..."
+                        >
+                    </div>
+                    <div class="filter-section">
+                        <select id="statusFilter" class="status-filter">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="submitted">Submitted</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                    <button id="exportDeliverablesBtn" class="btn-export">
+                        <span class="icon">📥</span>
+                        <span>Export</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Deliverables Summary Stats -->
+            <div class="deliverables-stats-grid">
+                <div class="stat-card total-deliverables">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="totalDeliverables">0</h3>
+                        <p class="stat-label">Total Deliverables</p>
+                    </div>
+                </div>
+                <div class="stat-card pending-deliverables">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="pendingDeliverables">0</h3>
+                        <p class="stat-label">Pending</p>
+                    </div>
+                </div>
+                <div class="stat-card approved-deliverables">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="approvedDeliverables">0</h3>
+                        <p class="stat-label">Approved</p>
+                    </div>
+                </div>
+                <div class="stat-card overdue-deliverables">
+                    <div class="stat-icon">🚨</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="overdueDeliverables">0</h3>
+                        <p class="stat-label">Overdue</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deliverables Table -->
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table class="data-table deliverables-table" id="deliverablesTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="partnerId">
+                                    Partner ID
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="partnerName">
+                                    Partner Name
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="deliverableNumber">
+                                    Deliverable #
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="description-col">Description</th>
+                                <th class="sortable" data-sort="milestoneDate">
+                                    Milestone Date
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="status">
+                                    Status
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="actualSubmission">
+                                    Actual Submission
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="approvalDate">
+                                    Approval Date
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable numeric" data-sort="paymentPercentage">
+                                    % Payment
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable numeric" data-sort="paymentAmount">
+                                    Payment Amount
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="paymentStatus">
+                                    Payment Status
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="actions-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deliverablesTableBody">
+                            <!-- Table data will be populated by JavaScript -->
+                            <% if (typeof data !== 'undefined' && data.deliverables && data.deliverables.length > 0) { %>
+                                <% data.deliverables.forEach(function(item) { %>
+                                    <tr>
+                                        <td><%= item.partnerId %></td>
+                                        <td>
+                                            <div class="partner-name-cell">
+                                                <%= item.partnerName %>
+                                            </div>
+                                        </td>
+                                        <td class="deliverable-number">
+                                            <%= item.deliverableNumber %>
+                                        </td>
+                                        <td class="description-cell">
+                                            <span class="description-text" title="<%= item.description %>">
+                                                <%= item.description %>
+                                            </span>
+                                        </td>
+                                        <td class="date-cell">
+                                            <%= item.milestoneDate %>
+                                        </td>
+                                        <td class="status-cell">
+                                            <span class="status-badge status-<%= (item.status || 'pending').toLowerCase() %>">
+                                                <%= item.status || 'Pending' %>
+                                            </span>
+                                        </td>
+                                        <td class="date-cell">
+                                            <%= item.actualSubmission || '-' %>
+                                        </td>
+                                        <td class="date-cell">
+                                            <%= item.approvalDate || '-' %>
+                                        </td>
+                                        <td class="percentage-cell">
+                                            <span class="percentage-value">
+                                                <%= item.paymentPercentage || '0%' %>
+                                            </span>
+                                        </td>
+                                        <td class="price-cell">
+                                            <span class="payment-amount">
+                                                <%= item.paymentAmount || 'UGX 0' %>
+                                            </span>
+                                        </td>
+                                        <td class="payment-status-cell">
+                                            <span class="payment-status-badge status-<%= (item.paymentStatus || 'pending').toLowerCase() %>">
+                                                <%= item.paymentStatus || 'Pending' %>
+                                            </span>
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="action-btn view" onclick="viewDeliverableDetails('<%= item.partnerId %>', '<%= item.deliverableNumber %>')">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="12" class="no-data">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">📋</div>
+                                            <div class="empty-text">No deliverables found</div>
+                                            <div class="empty-subtext">Deliverable records will appear here when available</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Table Information Footer -->
+            <div class="table-info">
+                <div class="table-stats">
+                    <div class="stat-item">
+                        Showing <strong id="showingDeliverablesCount">0</strong> of <strong id="totalDeliverablesCount">0</strong> deliverables
+                    </div>
+                    <div class="stat-item">
+                        Pending: <strong id="footerPendingCount">0</strong>
+                    </div>
+                    <div class="stat-item">
+                        Approved: <strong id="footerApprovedCount">0</strong>
+                    </div>
+                    <div class="stat-item">
+                        Total Payment: <strong id="footerTotalPayment">UGX 0</strong>
+                    </div>
+                </div>
+                
+                <div class="pagination">
+                    <span class="page-info">Page 1 of 1</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ensure jsData is injected BEFORE the client script -->
+    <% if (typeof jsData !== 'undefined' && jsData) { %>
+        <script>
+            window.deliverablesData = <%- JSON.stringify(jsData.deliverables || []) %>;
+            window.statsData = <%- JSON.stringify(jsData.stats || {}) %>;
+        </script>
+    <% } else { %>
+        <script>
+            window.deliverablesData = window.deliverablesData || [];
+            window.statsData = window.statsData || {};
+        </script>
+    <% } %>
+
+    <% if (typeof additionalJS !== 'undefined' && additionalJS) { %>
+        <% additionalJS.forEach(function(jsFile) { %>
+            <script src="<%= jsFile %>"></script>
+        <% }); %>
+    <% } else { %>
+        <script src="/js/deliverables-tracker.js"></script>
+    <% } %>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,106 @@
+<%- include('../partials/head', { title: 'View Partner - ' + (partner.partnerName || partner.name || 'Details' ),
+    additionalCSS: ['/css/forms/partner-view.css'] }) %>
+
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar', { title: 'Partner Details' }) %>
+
+            <div class="main-content">
+                <div class="content-area">
+                    <div class="page-header">
+                        <div class="page-header-content">
+                            <h1 class="page-title">
+                                <%= partner.partnerName || partner.partner_name || 'Partner Details' %>
+                            </h1>
+                            <p class="page-subtitle">Partner ID: <%= partner.id || partner.partner_id %>
+                            </p>
+                        </div>
+                        <div class="page-actions">
+                            <a href="/forms/partner/<%= partner.id || partner.partner_id %>/edit"
+                                class="btn-primary">Edit Partner</a>
+                            <a href="/master-register" class="btn-secondary">Back to Register</a>
+                        </div>
+                    </div>
+
+                    <div class="partner-details-container">
+                        <div class="details-card">
+                            <h2>Contract Information</h2>
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <label>Status</label>
+                                    <span
+                                        class="status-badge <%= (partner.contractStatus || partner.contract_status) === 'Signed' ? 'success' : 'pending' %>">
+                                        <%= partner.contractStatus || partner.contract_status || 'Unknown' %>
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Framework Agreement Date</label>
+                                    <span>
+                                        <%= partner.frameworkAgreementDate || partner.framework_agreement_date || '-' %>
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Commencement Date</label>
+                                    <span>
+                                        <%= partner.commencementDate || partner.commencement_date || '-' %>
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Contract Term</label>
+                                    <span>
+                                        <%= partner.contractTermYears || partner.contract_term_years || '-' %> Years
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Current Task Order</label>
+                                    <span>
+                                        <%= partner.currentTaskOrder || partner.current_task_order || '-' %>
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Task Order Price (Y1)</label>
+                                    <span>
+                                        <%= partner.taskOrderPriceY1 || partner.task_order_price_y1 ||
+                                            partner.contractValue || '-' %>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="details-card">
+                            <h2>Operational Details</h2>
+                            <div class="details-grid">
+                                <div class="detail-item full-width">
+                                    <label>Regions of Operation</label>
+                                    <span>
+                                        <% if (Array.isArray(partner.regionsOfOperation)) { %>
+                                            <%= partner.regionsOfOperation.join(', ') %>
+                                <% } else if (Array.isArray(partner.regions_of_operation)) { %>
+                                    <%= partner.regions_of_operation.join(' , ') %>
+                                <% } else { %>
+                                    <%= partner.regionsOfOperation || partner.regions_of_operation || ' -' %>
+                                                <% } %>
+                                    </span>
+                                </div>
+                                <div class="detail-item full-width">
+                                    <label>Key Personnel</label>
+                                    <span>
+                                        <%= partner.keyPersonnel || partner.key_personnel || '-' %>
+                                    </span>
+                                </div>
+                                <div class="detail-item full-width">
+                                    <label>Contract Link</label>
+                                    <% if (partner.contractLink || partner.contract_link) { %>
+                                        <a href="<%= partner.contractLink || partner.contract_link %>" target="_blank"
+                                            class="text-link">View Contract Document</a>
+                                        <% } else { %>
+                                            <span>-</span>
+                                            <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <%- include('../partials/footer', { additionalJS: [] }) %>

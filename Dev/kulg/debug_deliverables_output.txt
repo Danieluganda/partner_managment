@@ -1,0 +1,11 @@
+--- Starting Deliverables Import Debug ---
+DEBUG: DATABASE_URL exists? true
+[DB] DatabaseService: connected to Prisma (new client)
+Simulating import of: [{"Display Name":"Unknown","Partner Name":"Test Partner Deliverable","Partner ID":"P-TEST-DEL","Deliverable #":"1.1","Description":"Inception Report","Milestone Date":"2024-06-30","Status":"Pending","Responsible Person":"John Doe","% Payment":"10%"}]
+[IMP] ExcelImporter: persisted to fallback deliverables
+[IMP INFO] ExcelImporter: imported 1/1 deliverable rows
+Import function completed.
+Prisma Records Found: []
+Service Records Found: []
+FAILED: Record not found in DB or JSON store.
+[DB] DatabaseService: disconnected

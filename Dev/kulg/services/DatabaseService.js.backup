@@ -1,0 +1,305 @@
+// Let's create a quick fix for the DatabaseService initialization
+
+const { PrismaClient } = require('@prisma/client');
+
+class DatabaseService {
+  constructor() {
+    // Ensure Prisma client is always initialized
+    this.prisma = new PrismaClient({
+      log: ['error'],
+    });
+  }
+
+  // Keep both method names for compatibility
+  async connect() {
+    return this.initialize();
+  }
+
+  async initialize() {
+    try {
+      await this.prisma.$connect();
+      console.log('📚 Database connected successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Database connection failed:', error);
+      return false;
+    }
+  }
+
+  async getDashboardStats() {
+    try {
+      // Make sure this.prisma exists before using it
+      if (!this.prisma) {
+        console.error('❌ Prisma client not initialized');
+        return {
+          partnersCount: 0,
+          externalPartnersCount: 0,
+          personnelCount: 0,
+          deliverablesCount: 0
+        };
+      }
+
+      const [partnersCount, externalPartnersCount, personnelCount, deliverablesCount] = await Promise.all([
+        this.prisma.partners.count(),
+        this.prisma.external_partners.count(),
+        this.prisma.personnel.count(),
+        this.prisma.deliverables.count()
+      ]);
+
+      console.log(`📊 Dashboard Stats: Partners(${partnersCount}), External(${externalPartnersCount}), Personnel(${personnelCount}), Deliverables(${deliverablesCount})`);
+
+      return {
+        partnersCount,
+        externalPartnersCount,
+        personnelCount,
+        deliverablesCount
+      };
+    } catch (error) {
+      console.error('❌ Error calculating dashboard stats:', error);
+      return {
+        partnersCount: 0,
+        externalPartnersCount: 0,
+        personnelCount: 0,
+        deliverablesCount: 0
+      };
+    }
+  }
+
+  async getPartners() {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.partners.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (error) {
+      console.error('❌ Error fetching partners:', error);
+      throw error;
+    }
+  }
+
+  async getExternalPartners() {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.external_partners.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (error) {
+      console.error('❌ Error fetching external partners:', error);
+      throw error;
+    }
+  }
+
+  async getFinancialData() {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.financial_records.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (error) {
+      console.error('❌ Error fetching financial data:', error);
+      return [];
+    }
+  }
+
+  async getPersonnel() {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.personnel.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (error) {
+      console.error('❌ Error fetching personnel:', error);
+      throw error;
+    }
+  }
+
+  async getDeliverables() {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.deliverables.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (error) {
+      console.error('❌ Error fetching deliverables:', error);
+      throw error;
+    }
+  }
+
+  async createExternalPartner(partnerData) {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.external_partners.create({
+        data: partnerData
+      });
+    } catch (error) {
+      console.error('❌ Error creating external partner:', error);
+      throw error;
+    }
+  }
+
+  async createPartner(partnerData) {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.partners.create({
+        data: partnerData
+      });
+    } catch (error) {
+      console.error('❌ Error creating partner:', error);
+      throw error;
+    }
+  }
+
+  async getComplianceRecords() {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.compliance_records.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (error) {
+      console.error('❌ Error fetching compliance records:', error);
+      return [];
+    }
+  }
+
+  async createComplianceRecord(data) {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.compliance_records.create({ data });
+    } catch (error) {
+      console.error('❌ Error creating compliance record:', error);
+      throw error;
+    }
+  }
+
+  async searchPartners(query) {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+      return await this.prisma.partners.findMany({
+        where: {
+          OR: [
+            { partnerName: { contains: query } },
+            { keyContact: { contains: query } },
+            { region: { contains: query } }
+          ]
+        }
+      });
+    } catch (error) {
+      console.error('❌ Error searching partners:', error);
+      return [];
+    }
+  }
+
+  async performHealthCheck() {
+    try {
+      if (!this.prisma) {
+        return { status: 'error', message: 'Prisma client not initialized' };
+      }
+      
+      await this.prisma.$queryRaw`SELECT 1`;
+      return { 
+        status: 'healthy', 
+        timestamp: new Date().toISOString(),
+        database: 'connected'
+      };
+    } catch (error) {
+      console.error('❌ Health check failed:', error);
+      return { 
+        status: 'error', 
+        message: error.message,
+        timestamp: new Date().toISOString()
+      };
+    }
+  }
+
+  async getPartnerById(id) {
+    try {
+      return await this.prisma.partners.findUnique({ where: { id } });
+    } catch (error) {
+      console.error('❌ Error getting partner by ID:', error);
+      return null;
+    }
+  }
+
+  async getExternalPartnerById(id) {
+    try {
+      return await this.prisma.external_partners.findUnique({ where: { id } });
+    } catch (error) {
+      console.error('❌ Error getting external partner by ID:', error);
+      return null;
+    }
+  }
+
+  // Migration method
+  async migrateFromJSON(data) {
+    try {
+      console.log(`🔄 Migrating ${data.length} records...`);
+      
+      for (const item of data) {
+        try {
+          // Check if it's an external partner
+          if (item['Partner Name'] || item.partnerName) {
+            await this.createExternalPartner({
+              partnerName: item['Partner Name'] || item.partnerName,
+              keyContact: item['Key Contact & Details'] || item.keyContact || null,
+              dateInitiated: item['Date Initiated'] || item.dateInitiated || null,
+              currentStage: item['Current Stage'] || item.currentStage || null,
+              keyObjectives: item['Key Objectives / Focus Areas'] || item.keyObjectives || null,
+              status: item.Status || item.status || null,
+              pendingTasks: item['Pending Tasks & Next Steps'] || item.pendingTasks || null,
+              responsible: item['Responsible Person(s)'] || item.responsible || null,
+              deadline: item.Deadline || item.deadline || null,
+              notesBlockers: item['Notes & Blockers'] || item.notesBlockers || null,
+              // Map other fields as needed
+              contactEmail: item.contactEmail || null,
+              contactPhone: item.contactPhone || null,
+              partnerType: item.partnerType || 'unknown',
+              estimatedValue: item.estimatedValue || null,
+              priority: item.priority || 'medium',
+              region: item.region || null,
+              tags: item.tags || null,
+            });
+          }
+        } catch (itemError) {
+          console.error('❌ Failed to migrate item:', item, itemError.message);
+        }
+      }
+      
+      console.log('✅ Data migration completed!');
+    } catch (error) {
+      console.error('❌ Migration error:', error);
+      throw error;
+    }
+  }
+
+  async disconnect() {
+    if (this.prisma) {
+      await this.prisma.$disconnect();
+    }
+  }
+}
+
+module.exports = DatabaseService;
+
+// In app.js, add this line after other middleware setup
+const ensureDatabase = require('./middleware/database');
+app.use(ensureDatabase);

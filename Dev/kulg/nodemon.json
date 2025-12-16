@@ -1,0 +1,16 @@
+{
+  "watch": ["app.js", "services", "routes", "views", "public"],
+  "ext": "js,json,ejs,css",
+  "ignore": [
+    "data/**",
+    "data/excel/**",
+    "data/*.db",
+    "logs/**",
+    "node_modules/**",
+    ".imported.json",
+    ".imported.*",
+    "uploads/**",
+    "tests/**"
+  ],
+  "delay": "250ms"
+}

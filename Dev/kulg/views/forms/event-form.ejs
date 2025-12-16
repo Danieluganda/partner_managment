@@ -1,0 +1,226 @@
+<%- include('../partials/head', { title: editMode ? 'Edit Event' : 'Add Event' , additionalCSS: ['/css/forms.css'] }) %>
+
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+
+      <div class="main-content">
+        <div class="content-area">
+          <!-- Form Header -->
+          <div class="form-header">
+            <div class="form-header-content">
+              <a href="/consortium-events" class="back-link">
+                <span class="icon">←</span>
+                <span>Back to Events</span>
+              </a>
+              <h1 class="form-title">
+                <%= editMode ? 'Edit Event' : 'Add New Event' %>
+              </h1>
+              <p class="form-subtitle">
+                <%= editMode ? 'Update event details' : 'Create a new consortium event' %>
+              </p>
+            </div>
+          </div>
+
+          <!-- Event Form -->
+          <form id="eventForm" class="data-form" method="POST">
+            <div class="form-sections">
+              <!-- Basic Information Section -->
+              <div class="form-section">
+                <h2 class="section-title">Basic Information</h2>
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="eventName" class="required">Event Name & Description</label>
+                    <textarea id="eventName" name="eventName" rows="3" required
+                      placeholder="Enter event name and brief description"><%= editMode ? (event.eventName || '') : '' %></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="eventDate">Event Date</label>
+                    <input type="date" id="eventDate" name="eventDate"
+                      value="<%= editMode ? (event.eventDate || '') : '' %>">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="eventTime">Event Time</label>
+                    <input type="time" id="eventTime" name="eventTime"
+                      value="<%= editMode ? (event.eventTime || '') : '' %>">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="status" class="required">Status</label>
+                    <select id="status" name="status" required>
+                      <option value="">Select Status</option>
+                      <option value="Planning" <%=editMode && event.status==='Planning' ? 'selected' : '' %>>Planning
+                      </option>
+                      <option value="Confirmed" <%=editMode && event.status==='Confirmed' ? 'selected' : '' %>>Confirmed
+                      </option>
+                      <option value="Completed" <%=editMode && event.status==='Completed' ? 'selected' : '' %>>Completed
+                      </option>
+                      <option value="Cancelled" <%=editMode && event.status==='Cancelled' ? 'selected' : '' %>>Cancelled
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="format">Format</label>
+                    <select id="format" name="format">
+                      <option value="">Select Format</option>
+                      <option value="Virtual" <%=editMode && event.format==='Virtual' ? 'selected' : '' %>>Virtual
+                      </option>
+                      <option value="Physical" <%=editMode && event.format==='Physical' ? 'selected' : '' %>>Physical
+                      </option>
+                      <option value="Hybrid" <%=editMode && event.format==='Hybrid' ? 'selected' : '' %>>Hybrid</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="location">Location / Virtual Link</label>
+                    <input type="text" id="location" name="location"
+                      value="<%= editMode ? (event.location || '') : '' %>"
+                      placeholder="Enter physical location or virtual meeting link">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Partners & Stakeholders Section -->
+              <div class="form-section">
+                <h2 class="section-title">Partners & Stakeholders</h2>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="leadPartner">Lead Partner</label>
+                    <select id="leadPartner" name="leadPartner">
+                      <option value="">Select Lead Partner</option>
+                      <% if (typeof partners !=='undefined' && partners.length> 0) { %>
+                        <% partners.forEach(function(partner) { %>
+                          <option value="<%= partner.partnerName %>" <%=editMode &&
+                            event.leadPartner===partner.partnerName ? 'selected' : '' %>>
+                            <%= partner.partnerName %>
+                          </option>
+                          <% }); %>
+                            <% } %>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="responsiblePerson">Responsible Lead Person</label>
+                    <input type="text" id="responsiblePerson" name="responsiblePerson"
+                      value="<%= editMode ? (event.responsiblePerson || '') : '' %>"
+                      placeholder="Enter name of responsible person">
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="coOrganizingPartners">Co-Organizing Partners</label>
+                    <input type="text" id="coOrganizingPartners" name="coOrganizingPartners"
+                      value="<%= editMode ? (event.coOrganizingPartners || '') : '' %>"
+                      placeholder="Enter co-organizing partners (comma-separated)">
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="targetAudience">Target Audience</label>
+                    <textarea id="targetAudience" name="targetAudience" rows="2"
+                      placeholder="Describe the target audience for this event"><%= editMode ? (event.targetAudience || '') : '' %></textarea>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="requiredAttendees">Required Attendees (Stakeholders)</label>
+                    <textarea id="requiredAttendees" name="requiredAttendees" rows="2"
+                      placeholder="List required attendees and stakeholders"><%= editMode ? (event.requiredAttendees || '') : '' %></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Objectives & Outcomes Section -->
+              <div class="form-section">
+                <h2 class="section-title">Objectives & Outcomes</h2>
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="keyObjectives">Key Objectives</label>
+                    <textarea id="keyObjectives" name="keyObjectives" rows="3"
+                      placeholder="Describe the key objectives of this event"><%= editMode ? (event.keyObjectives || '') : '' %></textarea>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="programOutput">Directly Linked to Program Output</label>
+                    <input type="text" id="programOutput" name="programOutput"
+                      value="<%= editMode ? (event.programOutput || '') : '' %>"
+                      placeholder="Link to specific program output or deliverable">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Materials & Documentation Section -->
+              <div class="form-section">
+                <h2 class="section-title">Materials & Documentation</h2>
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="materialsLink">Link to Materials Prepared (Agenda, etc.)</label>
+                    <input type="url" id="materialsLink" name="materialsLink"
+                      value="<%= editMode ? (event.materialsLink || '') : '' %>" placeholder="https://...">
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="reportLink">Post-Event Report Link</label>
+                    <input type="url" id="reportLink" name="reportLink"
+                      value="<%= editMode ? (event.reportLink || '') : '' %>" placeholder="https://...">
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="reviewNotes">Review & Notes</label>
+                    <textarea id="reviewNotes" name="reviewNotes" rows="4"
+                      placeholder="Add any review notes, feedback, or additional information"><%= editMode ? (event.reviewNotes || '') : '' %></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <a href="/consortium-events" class="btn btn-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">
+                <%= editMode ? 'Update Event' : 'Create Event' %>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('eventForm');
+    const editMode = <%= editMode ? 'true' : 'false' %>;
+    const eventId = '<%= editMode ? event.id : '' %>';
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const url = editMode ? `/api/events/${eventId}` : '/api/events';
+        const method = editMode ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert(editMode ? 'Event updated successfully!' : 'Event created successfully!');
+          window.location.href = '/consortium-events';
+        } else {
+          alert('Error: ' + (result.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error saving event. Please try again.');
+      }
+    });
+  </script>
+
+  <%- include('../partials/footer') %>

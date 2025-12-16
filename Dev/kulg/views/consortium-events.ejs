@@ -1,0 +1,224 @@
+<%- include('partials/head', { title: 'Consortium Events - Partner Dashboard' , additionalCSS:
+  ['/css/consortium-events.css', '/css/components/tables.css' ] }) %>
+
+  <div class="dashboard-layout">
+    <%- include('partials/sidebar') %>
+
+      <div class="main-content">
+        <div class="content-area">
+          <!-- Page Header -->
+          <div class="page-header">
+            <div class="page-header-content">
+              <h1 class="page-title">Consortium Events</h1>
+              <p class="page-subtitle">Track and manage consortium events, meetings, and activities</p>
+            </div>
+            <div class="page-actions">
+              <button id="refreshEventsBtn" class="btn btn-secondary">
+                <span class="icon">↻</span>
+                <span>Refresh</span>
+              </button>
+              <button id="exportEventsBtn" class="btn btn-secondary">
+                <span class="icon">📥</span>
+                <span>Export</span>
+              </button>
+              <a href="/forms/event" class="btn btn-primary">
+                <span class="icon">➕</span>
+                <span>Add Event</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Events Controls -->
+          <div class="events-controls">
+            <div class="search-section">
+              <div class="search-box-events">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="eventsSearch" class="table-search" placeholder="Search events...">
+              </div>
+            </div>
+
+            <div class="action-section">
+              <div class="filter-section">
+                <select id="statusFilter" class="status-filter">
+                  <option value="">All Status</option>
+                  <option value="Planning">Planning</option>
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+                <select id="formatFilter" class="format-filter">
+                  <option value="">All Formats</option>
+                  <option value="Virtual">Virtual</option>
+                  <option value="Physical">Physical</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+                <select id="monthFilter" class="month-filter">
+                  <option value="">All Months</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Events Summary Stats -->
+          <div class="events-stats-grid">
+            <div class="stat-card total-events">
+              <div class="stat-icon">📅</div>
+              <div class="stat-content">
+                <h3 class="stat-value" id="totalEvents">0</h3>
+                <p class="stat-label">Total Events</p>
+              </div>
+            </div>
+            <div class="stat-card upcoming-events">
+              <div class="stat-icon">🔜</div>
+              <div class="stat-content">
+                <h3 class="stat-value" id="upcomingEvents">0</h3>
+                <p class="stat-label">Upcoming</p>
+              </div>
+            </div>
+            <div class="stat-card completed-events">
+              <div class="stat-icon">✅</div>
+              <div class="stat-content">
+                <h3 class="stat-value" id="completedEvents">0</h3>
+                <p class="stat-label">Completed</p>
+              </div>
+            </div>
+            <div class="stat-card this-month-events">
+              <div class="stat-icon">📆</div>
+              <div class="stat-content">
+                <h3 class="stat-value" id="thisMonthEvents">0</h3>
+                <p class="stat-label">This Month</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Events Table -->
+          <div class="table-container">
+            <div class="table-wrapper">
+              <table class="data-table events-table" id="eventsTable">
+                <thead>
+                  <tr>
+                    <th class="sortable" data-sort="eventDate">
+                      Date
+                      <span class="sort-indicator"></span>
+                    </th>
+                    <th class="sortable" data-sort="eventName">
+                      Event Name
+                      <span class="sort-indicator"></span>
+                    </th>
+                    <th class="sortable" data-sort="leadPartner">
+                      Lead Partner
+                      <span class="sort-indicator"></span>
+                    </th>
+                    <th>Target Audience</th>
+                    <th class="sortable" data-sort="format">
+                      Format
+                      <span class="sort-indicator"></span>
+                    </th>
+                    <th>Location</th>
+                    <th class="sortable" data-sort="status">
+                      Status
+                      <span class="sort-indicator"></span>
+                    </th>
+                    <th>Responsible Person</th>
+                    <th class="actions-col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="eventsTableBody">
+                  <% if (typeof data !=='undefined' && data.events && data.events.length> 0) { %>
+                    <% data.events.forEach(function(event) { %>
+                      <tr>
+                        <td class="date-cell">
+                          <%= event.eventDate || '-' %>
+                        </td>
+                        <td class="event-name-cell">
+                          <div class="event-name-text" title="<%= event.eventName %>">
+                            <%= event.eventName %>
+                          </div>
+                        </td>
+                        <td>
+                          <%= event.leadPartner || '-' %>
+                        </td>
+                        <td class="audience-cell">
+                          <span class="audience-text" title="<%= event.targetAudience %>">
+                            <%= event.targetAudience || '-' %>
+                          </span>
+                        </td>
+                        <td class="format-cell">
+                          <span class="format-badge format-<%= (event.format || 'unknown').toLowerCase() %>">
+                            <%= event.format || 'TBD' %>
+                          </span>
+                        </td>
+                        <td class="location-cell">
+                          <span class="location-text" title="<%= event.location %>">
+                            <%= event.location || '-' %>
+                          </span>
+                        </td>
+                        <td class="status-cell">
+                          <span class="status-badge status-<%= (event.status || 'planning').toLowerCase() %>">
+                            <%= event.status || 'Planning' %>
+                          </span>
+                        </td>
+                        <td>
+                          <%= event.responsiblePerson || '-' %>
+                        </td>
+                        <td class="actions-cell">
+                          <button class="action-btn view" onclick="viewEventDetails('<%= event.id %>')">
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                      <% }); %>
+                        <% } else { %>
+                          <tr>
+                            <td colspan="9" class="no-data">
+                              <div class="empty-state">
+                                <div class="empty-icon">📅</div>
+                                <div class="empty-text">No events found</div>
+                                <div class="empty-subtext">Event records will appear here when available</div>
+                              </div>
+                            </td>
+                          </tr>
+                          <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Table Information Footer -->
+          <div class="table-info">
+            <div class="table-stats">
+              <div class="stat-item">
+                Showing <strong id="showingEventsCount">0</strong> of <strong id="totalEventsCount">0</strong> events
+              </div>
+              <div class="stat-item">
+                Upcoming: <strong id="footerUpcomingCount">0</strong>
+              </div>
+              <div class="stat-item">
+                Completed: <strong id="footerCompletedCount">0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inject data for client-side JavaScript -->
+      <% if (typeof jsData !=='undefined' && jsData) { %>
+        <script>
+          window.eventsData = <% - JSON.stringify(jsData.events || []) %>;
+          window.statsData = <% - JSON.stringify(jsData.stats || {}) %>;
+        </script>
+        <% } else { %>
+          <script>
+            window.eventsData = window.eventsData || [];
+            window.statsData = window.statsData || {};
+          </script>
+          <% } %>
+
+            <% if (typeof additionalJS !=='undefined' && additionalJS) { %>
+              <% additionalJS.forEach(function(jsFile) { %>
+                <script src="<%= jsFile %>"></script>
+                <% }); %>
+                  <% } else { %>
+                    <script src="/js/consortium-events.js"></script>
+                    <% } %>
+  </div>

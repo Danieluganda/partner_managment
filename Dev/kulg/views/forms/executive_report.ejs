@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partnership Portfolio - Executive Summary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .report-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .report-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .report-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .report-subtitle {
+            font-size: 18px;
+            opacity: 0.95;
+            margin-bottom: 5px;
+        }
+
+        .report-date {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 10px;
+        }
+
+        /* Content */
+        .report-content {
+            padding: 40px;
+        }
+
+        /* At a Glance */
+        .glance-section {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .glance-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .glance-title-icon {
+            font-size: 28px;
+            margin-right: 12px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Three Column Layout */
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .column-card {
+            background: #f9fafb;
+            padding: 25px;
+            border-radius: 10px;
+            border-top: 4px solid #667eea;
+        }
+
+        .column-card.success {
+            border-top-color: #10b981;
+        }
+
+        .column-card.warning {
+            border-top-color: #f59e0b;
+        }
+
+        .column-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .column-icon {
+            font-size: 22px;
+            margin-right: 10px;
+        }
+
+        .column-content {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.7;
+        }
+
+        .column-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .column-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .column-list li:last-child {
+            border-bottom: none;
+        }
+
+        .list-label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .list-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Quick Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        /* Compact Table */
+        .compact-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .compact-table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .compact-table th,
+        .compact-table td {
+            padding: 12px 10px;
+            text-align: left;
+        }
+
+        .compact-table tbody tr {
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .compact-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .compact-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Footer */
+        .report-footer {
+            background: #f9fafb;
+            padding: 25px 40px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Print Button */
+        .print-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .print-button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .report-container {
+                box-shadow: none;
+            }
+            .print-button {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .report-content {
+                padding: 20px;
+            }
+            .metrics-grid,
+            .three-column {
+                grid-template-columns: 1fr;
+            }
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <!-- Header -->
+        <div class="report-header">
+            <div class="report-title">📊 Partnership Portfolio</div>
+            <div class="report-subtitle">Executive Summary Report</div>
+            <div class="report-date">Generated: November 9, 2025 | Reporting Period: Year 1 (2025-2026)</div>
+        </div>
+
+        <!-- Content -->
+        <div class="report-content">
+            <!-- At a Glance Section -->
+            <div class="glance-section">
+                <div class="glance-title">
+                    <span class="glance-title-icon">⚡</span>
+                    Portfolio at a Glance
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-value">13</div>
+                        <div class="metric-label">Total Partners</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">8</div>
+                        <div class="metric-label">Active (Signed)</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">5</div>
+                        <div class="metric-label">In Contracting</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">5.9B</div>
+                        <div class="metric-label">UGX Portfolio Value</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">21</div>
+                        <div class="metric-label">Districts Covered</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">40%</div>
+                        <div class="metric-label">Avg Utilization</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Three Column Summary -->
+            <div class="three-column">
+                <!-- Key Highlights -->
+                <div class="column-card success">
+                    <div class="column-title">
+                        <span class="column-icon">✅</span>
+                        Key Highlights
+                    </div>
+                    <div class="column-content">
+                        <ul class="column-list">
+                            <li>
+                                <span class="list-label">Contract Success Rate</span>
+                                <span class="list-value">62%</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Q1 Approval Rate</span>
+                                <span class="list-value">100%</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Portfolio Health</span>
+                                <span class="list-value">Strong</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Risk Level</span>
+                                <span class="list-value">Low</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Timeline Status</span>
+                                <span class="list-value">On Track</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Budget Overview -->
+                <div class="column-card">
+                    <div class="column-title">
+                        <span class="column-icon">💰</span>
+                        Budget Overview
+                    </div>
+                    <div class="column-content">
+                        <ul class="column-list">
+                            <li>
+                                <span class="list-label">Total Allocated</span>
+                                <span class="list-value">UGX 5.9B</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Average per Partner</span>
+                                <span class="list-value">UGX 737M</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Largest Contract</span>
+                                <span class="list-value">UGX 850M</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Smallest Contract</span>
+                                <span class="list-value">UGX 650M</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Active Budget</span>
+                                <span class="list-value">UGX 5.9B</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Regional Coverage -->
+                <div class="column-card">
+                    <div class="column-title">
+                        <span class="column-icon">🗺️</span>
+                        Regional Coverage
+                    </div>
+                    <div class="column-content">
+                        <ul class="column-list">
+                            <li>
+                                <span class="list-label">Eastern Uganda</span>
+                                <span class="list-value">10 Districts</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Central Uganda</span>
+                                <span class="list-value">8 Districts</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Western Region</span>
+                                <span class="list-value">2 Partners</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Northern Region</span>
+                                <span class="list-value">2 Partners</span>
+                            </li>
+                            <li>
+                                <span class="list-label">Nationwide</span>
+                                <span class="list-value">2 Partners</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Performance Stats -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="font-size: 20px; margin-bottom: 15px; color: #1f2937; font-weight: 600;">📈 Performance Snapshot</h3>
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-text">Q1 Approval Rate</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">40%</div>
+                        <div class="stat-text">Avg Utilization</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">8</div>
+                        <div class="stat-text">Active Partners</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">21</div>
+                        <div class="stat-text">Districts Reached</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">62%</div>
+                        <div class="stat-text">Contracts Signed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Partners Summary -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="font-size: 20px; margin-bottom: 15px; color: #1f2937; font-weight: 600;">👥 Active Partners (8)</h3>
+                <table class="compact-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Partner Name</th>
+                            <th>Region</th>
+                            <th>Year 1 Budget</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>P-01</strong></td>
+                            <td>PEDN</td>
+                            <td>Eastern (7 districts)</td>
+                            <td>UGX 749M</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-02</strong></td>
+                            <td>Stanbic Business Incubator</td>
+                            <td>Central (8 districts)</td>
+                            <td>UGX 750M</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-03</strong></td>
+                            <td>XY</td>
+                            <td>Central</td>
+                            <td>UGX 700M</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-04</strong></td>
+                            <td>Challenges Uganda</td>
+                            <td>Northern</td>
+                            <td>UGX 720M</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-05</strong></td>
+                            <td>dfcu Bank</td>
+                            <td>Central & Eastern</td>
+                            <td>UGX 800M</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-06</strong></td>
+                            <td>EHCAI</td>
+                            <td>Western</td>
+                            <td>UGX 680M</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-07</strong></td>
+                            <td>Mkazi Foundation</td>
+                            <td>Eastern</td>
+                            <td>UGX 650M</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-08</strong></td>
+                            <td>MUBS</td>
+                            <td>Nationwide</td>
+                            <td>UGX 850M</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pipeline Partners -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="font-size: 20px; margin-bottom: 15px; color: #1f2937; font-weight: 600;">⏳ Pipeline - In Contracting (5)</h3>
+                <table class="compact-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Partner Name</th>
+                            <th>Target Region</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>P-09</strong></td>
+                            <td>LEU</td>
+                            <td>Central Region</td>
+                            <td><span class="badge badge-warning">In Contracting</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-10</strong></td>
+                            <td>AGDI</td>
+                            <td>Western Region</td>
+                            <td><span class="badge badge-warning">In Contracting</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-11</strong></td>
+                            <td>EASSI</td>
+                            <td>Eastern Region</td>
+                            <td><span class="badge badge-warning">In Contracting</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-12</strong></td>
+                            <td>AID</td>
+                            <td>Northern Region</td>
+                            <td><span class="badge badge-warning">In Contracting</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>P-13</strong></td>
+                            <td>CURAD</td>
+                            <td>Nationwide</td>
+                            <td><span class="badge badge-warning">In Contracting</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Bottom Three Column -->
+            <div class="three-column">
+                <!-- Strengths -->
+                <div class="column-card success">
+                    <div class="column-title">
+                        <span class="column-icon">💪</span>
+                        Key Strengths
+                    </div>
+                    <div class="column-content">
+                        <ul style="list-style: disc; padding-left: 20px; color: #059669;">
+                            <li>Diverse portfolio mix</li>
+                            <li>Comprehensive coverage</li>
+                            <li>100% Q1 approval rate</li>
+                            <li>Strong early compliance</li>
+                            <li>Balanced budget allocation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Priorities -->
+                <div class="column-card warning">
+                    <div class="column-title">
+                        <span class="column-icon">🎯</span>
+                        Priority Actions
+                    </div>
+                    <div class="column-content">
+                        <ul style="list-style: disc; padding-left: 20px; color: #d97706;">
+                            <li>Finalize 5 pending contracts</li>
+                            <li>Follow up Q1/Q2 reporting</li>
+                            <li>Update contact information</li>
+                            <li>Conduct mid-year review</li>
+                            <li>Enhance financial tracking</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="column-card">
+                    <div class="column-title">
+                        <span class="column-icon">💡</span>
+                        Recommendations
+                    </div>
+                    <div class="column-content">
+                        <ul style="list-style: disc; padding-left: 20px; color: #3b82f6;">
+                            <li>Accelerate contracting</li>
+                            <li>Implement monitoring cadence</li>
+                            <li>Capacity building plan</li>
+                            <li>Regular check-ins</li>
+                            <li>Portfolio optimization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Line -->
+            <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 25px; border-radius: 10px; border-left: 5px solid #10b981; margin-top: 30px;">
+                <h3 style="font-size: 18px; margin-bottom: 12px; color: #065f46; font-weight: 600;">📌 Bottom Line</h3>
+                <p style="font-size: 15px; color: #047857; line-height: 1.8; margin: 0;">
+                    <strong>The partnership portfolio is performing well</strong> with 8 active partners (62%) implementing programs 
+                    across 21 districts. Total Year 1 value of <strong>UGX 5.9 billion</strong> is well-distributed with strong early 
+                    compliance (100% Q1 approval). <strong>Priority focus:</strong> Finalize 5 pending contracts and systematize 
+                    reporting follow-up. <strong>Overall assessment: Strong foundation for Year 1 success.</strong>
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="report-footer">
+            <p><strong>Partnership Portfolio Executive Summary</strong> | Generated: November 9, 2025</p>
+            <p>Year 1 Reporting Period: May 2025 - April 2026 | Current Status: Month 6 of 12</p>
+            <p>Data Source: Master Register, Financial Summary, Deliverables, Compliance & Key Personnel Worksheets</p>
+        </div>
+    </div>
+
+    <button class="print-button" onclick="window.print()">🖨️ Print / Save PDF</button>
+</body>
+</html>

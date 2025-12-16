@@ -1,0 +1,170 @@
+<%- include('partials/head') %>
+<link rel="stylesheet" href="/css/admin-users.css">
+
+<div class="dashboard-layout">
+  <%- include('partials/sidebar') %>
+
+  <div class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <h1><i class="fa-solid fa-users"></i> User Management</h1>
+        <p>Admin Panel – Manage System Users</p>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <div class="admin-panel fade-in">
+        <h2><i class="fa-solid fa-users-gear"></i> Current Users (<%= users.length %>)</h2>
+
+        <!-- Add User Form -->
+        <div class="add-user-form">
+          <h3><i class="fa-solid fa-user-plus"></i> Add New User</h3>
+          <form action="/admin/users/add" method="POST" class="form-grid">
+            <div class="form-group">
+              <label for="fullName"><i class="fa-solid fa-user"></i> Full Name</label>
+              <input type="text" id="fullName" name="fullName" required>
+            </div>
+            <div class="form-group">
+              <label for="username"><i class="fa-solid fa-id-badge"></i> Username</label>
+              <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+              <label for="email"><i class="fa-solid fa-envelope"></i> Email</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+              <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+              <label for="role"><i class="fa-solid fa-crown"></i> Role</label>
+              <select id="role" name="role" required>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="submit-btn">
+                <i class="fa-solid fa-user-plus"></i> Add User
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Messages -->
+        <% if (message) { %>
+        <div class="message success">
+          <i class="fa-solid fa-check-circle"></i> <%= message %>
+        </div>
+        <% } %>
+        <% if (error) { %>
+        <div class="message error">
+          <i class="fa-solid fa-times-circle"></i> <%= error %>
+        </div>
+        <% } %>
+
+        <!-- Users Table -->
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th><i class="fa-solid fa-id-card"></i> ID</th>
+              <th><i class="fa-solid fa-user"></i> User</th>
+              <th><i class="fa-solid fa-envelope"></i> Email</th>
+              <th><i class="fa-solid fa-crown"></i> Role</th>
+              <th><i class="fa-solid fa-toggle-on"></i> Status</th>
+              <th><i class="fa-solid fa-shield-halved"></i> 2FA</th>
+              <th><i class="fa-solid fa-gear"></i> Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(user => { %>
+            <tr>
+              <td data-label="ID">
+                <% if (user.uuid) { %>
+                  <code class="user-uuid"><%= user.uuid.slice(0, 8) %>...</code>
+                <% } else { %>
+                  <code class="user-uuid">No UUID</code>
+                <% } %>
+                <br><small class="muted">ID: <%= user.id %></small>
+              </td>
+
+              <td data-label="User">
+                <strong><%= user.fullName || user.username %></strong>
+                <% if (user.email === 'daniel.bn1800@gmail.com' && user.username === 'Super user') { %>
+                  <span class="tag-super"><i class="fa-solid fa-shield-halved"></i> SUPER ADMIN</span>
+                <% } %>
+                <br><small class="muted">@<%= user.username %></small>
+              </td>
+
+              <td data-label="Email"><%= user.email %></td>
+
+              <td data-label="Role">
+                <% if (user.email === 'daniel.bn1800@gmail.com' && user.username === 'Super user') { %>
+                  <span class="badge super-admin"><i class="fa-solid fa-shield"></i> Super Admin</span>
+                <% } else { %>
+                  <span class="badge <%= user.role === 'admin' ? 'admin' : 'user' %>">
+                    <i class="fa-solid <%= user.role === 'admin' ? 'fa-crown' : 'fa-user' %>"></i> 
+                    <%= user.role === 'admin' ? 'Admin' : 'User' %>
+                  </span>
+                <% } %>
+              </td>
+
+              <td data-label="Status">
+                <span class="status <%= user.isActive ? 'active' : 'inactive' %>">
+                  <i class="fa-solid <%= user.isActive ? 'fa-circle-check' : 'fa-circle-xmark' %>"></i>
+                  <%= user.isActive ? 'Active' : 'Inactive' %>
+                </span>
+              </td>
+
+              <td data-label="2FA">
+                <span class="<%= user.twoFactorEnabled ? 'status active' : 'muted' %>">
+                  <i class="fa-solid <%= user.twoFactorEnabled ? 'fa-lock' : 'fa-unlock' %>"></i>
+                  <%= user.twoFactorEnabled ? 'Enabled' : 'Disabled' %>
+                </span>
+              </td>
+
+              <td data-label="Actions">
+                <% if (user.email === 'daniel.bn1800@gmail.com' && user.username === 'Super user') { %>
+                  <div class="protected">
+                    <i class="fa-solid fa-shield"></i> SUPER ADMIN<br>
+                    <small>System Protected</small>
+                  </div>
+                <% } else { %>
+                  <div class="actions">
+                    <form action="/admin/users/<%= user.id %>/toggle-role" method="POST" class="inline-form">
+                      <button type="submit" class="btn btn-warning">
+                        <i class="fa-solid <%= user.role === 'admin' ? 'fa-user' : 'fa-crown' %>"></i>
+                        <%= user.role === 'admin' ? 'Make User' : 'Make Admin' %>
+                      </button>
+                    </form>
+                    <form action="/admin/users/<%= user.id %>/toggle-status" method="POST" class="inline-form">
+                      <button type="submit" class="btn <%= user.isActive ? 'btn-danger' : 'btn-success' %>">
+                        <i class="fa-solid <%= user.isActive ? 'fa-user-slash' : 'fa-user-check' %>"></i>
+                        <%= user.isActive ? 'Deactivate' : 'Activate' %>
+                      </button>
+                    </form>
+                  </div>
+                <% } %>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+
+        <!-- Security Notes -->
+        <div class="security-notes">
+          <h3><i class="fa-solid fa-lock"></i> Security Notes</h3>
+          <ul>
+            <li><strong><i class="fa-solid fa-shield-halved"></i> Super Admin Protection:</strong> Daniel Uganda (Super user) cannot be modified or removed</li>
+            <li><strong><i class="fa-solid fa-crown"></i> Admin Protection:</strong> The last admin cannot be demoted or deactivated</li>
+            <li><strong><i class="fa-solid fa-key"></i> Access Control:</strong> Only admins can access this panel</li>
+            <li><strong><i class="fa-solid fa-lock"></i> Password Security:</strong> Passwords are encrypted using bcrypt</li>
+            <li><strong><i class="fa-solid fa-mobile-screen"></i> Two-Factor Authentication:</strong> Users can enable 2FA for extra security</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

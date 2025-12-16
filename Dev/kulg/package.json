@@ -1,0 +1,59 @@
+{
+  "name": "partner-dashboard-app",
+  "version": "1.0.0",
+  "description": "Partner Dashboard - Interactive Contract & Partner Management System",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "jest",
+    "inspect-db": "node inspect-db.js",
+    "view-data": "node view-all-data.js",
+    "db:studio": "npx prisma studio",
+    "db:reset": "npx prisma migrate reset",
+    "db:migrate": "npx prisma migrate dev",
+    "db:generate": "npx prisma generate",
+    "db:status": "npx prisma migrate status"
+  },
+  "keywords": [
+    "dashboard",
+    "partners",
+    "contracts",
+    "management"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.2.1",
+    "express-session": "^1.18.2",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "node-fetch": "^2.7.0",
+    "nodemailer": "^7.0.10",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "path": "^0.12.7",
+    "prisma": "^6.19.0",
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0",
+    "sqlite3": "^5.1.7",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/multer": "^2.0.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/speakeasy": "^2.0.10",
+    "jest": "^30.2.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^7.1.4"
+  }
+}

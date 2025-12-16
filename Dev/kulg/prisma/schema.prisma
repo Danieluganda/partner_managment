@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model activity_logs {
+  id         String   @id
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  changes    String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+}
+
+model compliance_records {
+  id                String   @id
+  partnerId         String?
+  partnerName       String
+  complianceType    String
+  requirement       String
+  status            String
+  dueDate           String?
+  lastReviewDate    String?
+  nextReviewDate    String?
+  responsiblePerson String?
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime
+}
+
+model deliverables {
+  id                   String   @id
+  deliverableName      String
+  partnerId            String?
+  partnerName          String
+  description          String?
+  dueDate              String
+  assignedTo           String
+  status               String
+  priority             String?
+  completionPercentage Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime
+}
+
+model external_partners {
+  id             String   @id
+  partnerName    String
+  partnerType    String
+  keyContact     String
+  contactEmail   String
+  contactPhone   String?
+  dateInitiated  String
+  currentStage   String
+  keyObjectives  String
+  status         String
+  pendingTasks   String?
+  responsible    String
+  deadline       String?
+  notesBlockers  String?
+  estimatedValue String?
+  priority       String?
+  region         String?
+  tags           String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+}
+
+model financial_records {
+  id              String   @id
+  partnerId       String?
+  partnerName     String
+  contractValue   String
+  budgetAllocated String?
+  actualSpent     String?
+  remainingBudget String?
+  paymentSchedule String?
+  lastPaymentDate String?
+  nextPaymentDue  String?
+  financialStatus String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+}
+
+model new_users {
+  id                     Int       @id @default(autoincrement())
+  uuid                   String
+  fullName               String
+  username               String
+  email                  String
+  password               String
+  role                   String    @default("USER")
+  isActive               Boolean   @default(true)
+  twoFactorEnabled       Boolean   @default(false)
+  twoFactorSecret        String?
+  backupCodes            String?
+  bio                    String?
+  phone                  String?
+  timezone               String    @default("UTC")
+  language               String    @default("en")
+  profilePicture         String?
+  lastLoginAt            DateTime?
+  loginCount             Int       @default(0)
+  emailVerified          Boolean   @default(false)
+  emailVerificationToken String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime
+}
+
+model partners {
+  id                 String   @id
+  partnerName        String
+  partnerType        String
+  contactEmail       String
+  contactPhone       String?
+  keyPersonnel       String?
+  regionsOfOperation String?
+  taskOrderPrice     String?
+  contractStatus     String?
+  commencementDate   String?
+  contractDuration   String?
+  contractValue      String?
+  contractStartDate  String?
+  contractEndDate    String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime
+  actualSpent        Float?   @default(0)
+  budgetAllocated    Float?   @default(0)
+  comments           String?
+  financialStatus    String?
+  lastPaymentDate    String?
+  nextPaymentDue     String?
+  paymentSchedule    String?
+  q1ActualPaid       Float?   @default(0)
+  q2ActualPaid       Float?   @default(0)
+  q3ActualPaid       Float?   @default(0)
+  q4ActualPaid       Float?   @default(0)
+  utilizationRate    Float?   @default(0)
+}
+
+model personnel {
+  id                 String   @id
+  partnerType        String
+  partnerId          String?
+  partnerName        String?
+  partnerStatus      String?
+  fullName           String
+  jobTitle           String
+  department         String?
+  seniority          String?
+  emailAddress       String
+  phoneNumber        String?
+  alternateEmail     String?
+  alternatePhone     String?
+  officeLocation     String?
+  reportsTo          String?
+  workStatus         String?
+  preferredContact   String?
+  responsibilities   String?
+  projectAssignments String?
+  teamMembers        String?
+  skills             String?
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime
+}
+
+model users {
+  id                     String    @id
+  username               String    @unique
+  email                  String    @unique
+  password               String
+  fullName               String?
+  role                   String    @default("user")
+  isActive               Boolean   @default(true)
+  lastLogin              DateTime?
+  twoFactorEnabled       Boolean   @default(false)
+  twoFactorSecret        String?
+  backupCodes            String?
+  lastTwoFactorAuth      DateTime?
+  failedLoginAttempts    Int       @default(0)
+  accountLockedUntil     DateTime?
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  emailVerified          Boolean   @default(false)
+  emailVerificationToken String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime
+  uuid                   String?   @unique
+}
+
+model Esos {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  lotOfOperation  String
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  contacts        Contacts[] @relation("EsoContacts")
+  
+  @@map("esos")
+}
+
+model Contacts {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?
+  email     String
+  esoId     Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  eso       Esos     @relation("EsoContacts", fields: [esoId], references: [id], onDelete: Cascade)
+  
+  @@map("contacts")
+}
+
+model consortium_events {
+  id                    String   @id
+  eventName             String
+  description           String?
+  leadPartner           String?
+  leadPartnerId         String?
+  coOrganizingPartners  String?
+  targetAudience        String?
+  keyObjectives         String?
+  programOutput         String?
+  eventDate             String?
+  eventTime             String?
+  format                String?
+  location              String?
+  status                String
+  responsiblePerson     String?
+  requiredAttendees     String?
+  materialsLink         String?
+  reportLink            String?
+  reviewNotes           String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+

@@ -1,0 +1,196 @@
+<%- include('partials/head', { 
+    title: 'External Partners Tracker - Partner Dashboard',
+    additionalCSS: ['/css/external-partners.css', '/css/components/tables.css']
+}) %>
+
+<div class="dashboard-layout">
+    <%- include('partials/sidebar') %>
+    
+    <div class="main-content">
+        <div class="content-area">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">External Partners Tracker</h1>
+                    <p class="page-subtitle">Partnership pipeline and opportunity management</p>
+                </div>
+                <div class="page-actions">
+                    <a href="/forms/external-partner" class="btn btn-primary" id="newExternalPartnerBtn">
+                        <span class="icon">➕</span>
+                        <span>Add Partner</span>
+                    </a>
+                    <button class="btn btn-secondary" id="refreshExternalBtn">
+                        <span class="icon">↻</span>
+                        <span>Refresh</span>
+                    </button>
+                    <button class="btn btn-secondary" id="exportExternalBtn">
+                        <span class="icon">📥</span>
+                        <span>Export</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🤝</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalExternal">0</div>
+                            <div class="stat-label">Total External Partners</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="activeEngagements">0</div>
+                            <div class="stat-label">Active Engagements</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="pendingTasks">0</div>
+                            <div class="stat-label">Pending Tasks</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="upcomingDeadlines">0</div>
+                            <div class="stat-label">Upcoming Deadlines</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search and Filter Section -->
+                <div class="search-filter-section">
+                    <div class="search-filters">
+                        <div class="search-group">
+                            <div class="search-input-wrapper">
+                                <input 
+                                    type="text" 
+                                    id="externalSearch" 
+                                    placeholder="Search partners..." 
+                                    class="search-input"
+                                >
+                                <button class="search-btn">🔍</button>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <select id="stageExternalFilter" class="filter-select">
+                                <option value="">All Stages</option>
+                                <option value="initiation">Initiation</option>
+                                <option value="negotiation">Negotiation</option>
+                                <option value="due-diligence">Due Diligence</option>
+                                <option value="contract-review">Contract Review</option>
+                                <option value="approval">Approval</option>
+                                <option value="execution">Execution</option>
+                                <option value="ongoing">Ongoing</option>
+                                <option value="review">Review</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <select id="statusExternalFilter" class="filter-select">
+                                <option value="">All Status</option>
+                                <option value="on-track">On Track</option>
+                                <option value="at-risk">At Risk</option>
+                                <option value="delayed">Delayed</option>
+                                <option value="blocked">Blocked</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <select id="responsibleExternalFilter" class="filter-select">
+                                <option value="">All Responsible</option>
+                                <option value="John Anderson">John Anderson</option>
+                                <option value="Sarah Mitchell">Sarah Mitchell</option>
+                                <option value="Michael Chen">Michael Chen</option>
+                                <option value="Emily Rodriguez">Emily Rodriguez</option>
+                                <option value="David Kim">David Kim</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-search">
+                        <input 
+                            type="text" 
+                            id="quickExternalSearch" 
+                            placeholder="Search external partners..." 
+                            class="quick-search-input"
+                        >
+                    </div>
+                </div>
+
+                <!-- External Partners Table -->
+                <div class="table-container">
+                    <table class="data-table" id="externalTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="partnerName">Partner Name</th>
+                                <th class="sortable" data-sort="keyContact">Key Contact</th>
+                                <th class="sortable" data-sort="dateInitiated">Date Initiated</th>
+                                <th class="sortable" data-sort="currentStage">Current Stage</th>
+                                <th class="sortable" data-sort="keyObjectives">Key Objectives</th>
+                                <th class="sortable" data-sort="status">Status</th>
+                                <th class="sortable" data-sort="pendingTasks">Pending Tasks</th>
+                                <th class="sortable" data-sort="responsible">Responsible</th>
+                                <th class="sortable" data-sort="deadline">Deadline</th>
+                                <th class="notes-header">Notes & Blockers</th>
+                                <th class="actions-header">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer with Pagination and Summary -->
+                <div class="table-footer">
+                    <div class="footer-info">
+                        <span>Showing <strong id="showingExternalCount">0</strong> of <strong id="totalExternalCount">0</strong> external partners</span>
+                        <span class="separator">•</span>
+                        <span>On Track: <strong id="footerOnTrackCount">0</strong></span>
+                        <span class="separator">•</span>
+                        <span>At Risk: <strong id="footerAtRiskCount">0</strong></span>
+                        <span class="separator">•</span>
+                        <span>Success Rate: <strong id="footerSuccessRate">0%</strong></span>
+                    </div>
+                    
+                    <div class="footer-actions">
+                        <a href="/forms/external-partner" class="btn btn-sm btn-primary" id="addExternalBtn">Add Partner</a>
+                        <button class="btn btn-sm btn-secondary" id="generateReportBtn">Generate Report</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+    <!-- Pass data to JavaScript -->
+    <% if (locals.data) { %>
+        <script>
+            window.externalPartnersData = <%- JSON.stringify(data.externalPartners || []) %>;
+            window.partnersData = <%- JSON.stringify(data.partners || []) %>;
+            window.statsData = <%- JSON.stringify(data.stats || {}) %>;
+        </script>
+    <% } else if (locals.jsData) { %>
+        <script>
+            window.externalPartnersData = <%- JSON.stringify(jsData.externalPartners || []) %>;
+            window.partnersData = <%- JSON.stringify(jsData.partners || []) %>;
+            window.statsData = <%- JSON.stringify(jsData.stats || {}) %>;
+        </script>
+    <% } %>
+    
+    <% if (locals.additionalJS) { %>
+        <% additionalJS.forEach(function(js) { %>
+            <script src="<%= js %>"></script>
+        <% }); %>
+    <% } %>
+        </div>
+    </div>
+</div>

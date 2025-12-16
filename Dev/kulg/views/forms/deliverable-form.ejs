@@ -1,0 +1,440 @@
+<%- include('../partials/head', { 
+    title: 'Add Deliverable - Partner Dashboard',
+    additionalCSS: ['/css/forms/deliverable-form.css', '/css/components/forms.css']
+}) %>
+
+<div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+    
+    <div class="main-content">
+        <div class="content-area">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">
+                        <% if (locals.deliverable && deliverable.id) { %>
+                            Edit Deliverable
+                        <% } else { %>
+                            Add New Deliverable
+                        <% } %>
+                    </h1>
+                    <p class="page-subtitle">Track milestones and project deliverables</p>
+                </div>
+                <div class="page-actions">
+                    <a href="/deliverables-tracker" class="btn btn-secondary">
+                        <span class="icon">← </span>
+                        <span>Back to Tracker</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <div class="form-container">
+                <form id="deliverableForm" class="deliverable-form" action="/api/deliverables" method="POST">
+                    <% if (locals.deliverable && deliverable.id) { %>
+                        <input type="hidden" name="_method" value="PUT">
+                        <input type="hidden" name="id" value="<%= deliverable.id %>">
+                    <% } %>
+
+                    <!-- Basic Information Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Basic Information</h3>
+                            <p class="section-subtitle">Essential deliverable details</p>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="deliverableNumber" class="form-label required">
+                                    Deliverable #
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="deliverableNumber" 
+                                    name="deliverableNumber"
+                                    class="form-input"
+                                    placeholder="e.g., D-001, DEL-2024-001..."
+                                    value="<%= locals.deliverable ? deliverable.deliverableNumber : '' %>"
+                                    required
+                                >
+                                <div class="form-help">Unique identifier for this deliverable</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="deliverableName" class="form-label required">
+                                    Description/Title
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="deliverableName" 
+                                    name="title"
+                                    class="form-input"
+                                    placeholder="Enter deliverable description..."
+                                    value="<%= locals.deliverable ? deliverable.title || deliverable.deliverableName : '' %>"
+                                    required
+                                >
+                                <div class="form-help">Provide a clear, descriptive name for the deliverable</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="partnerSelect" class="form-label required">
+                                    Associated Partner
+                                </label>
+                                <div class="partner-select-container">
+                                    <div class="searchable-select" id="partnerSelectWrapper">
+                                        <input 
+                                            type="text" 
+                                            id="partnerSearch" 
+                                            class="form-input partner-search"
+                                            placeholder="Search and select partner..."
+                                            autocomplete="off"
+                                        >
+                                        <div class="select-arrow">
+                                            <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                                                <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
+                                        <div class="partner-dropdown" id="partnerDropdown">
+                                            <div class="dropdown-search">
+                                                <input 
+                                                    type="text" 
+                                                    id="partnerFilterInput"
+                                                    class="dropdown-search-input"
+                                                    placeholder="Type to search partners..."
+                                                >
+                                            </div>
+                                            <div class="dropdown-options" id="partnerOptions">
+                                                <% if (locals.data && locals.data.partners && locals.data.partners.length > 0) { %>
+                                                    <div class="option-group">
+                                                        <div class="option-group-label">Internal Partners</div>
+                                                        <% data.partners.forEach(partner => { %>
+                                                            <div class="partner-option" 
+                                                                 data-value="<%= partner.id %>" 
+                                                                 data-name="<%= partner.name %>"
+                                                                 data-partner-id="<%= partner.id %>"
+                                                                 data-type="internal">
+                                                                <div class="partner-info">
+                                                                    <div class="partner-name"><%= partner.name %></div>
+                                                                    <div class="partner-details">
+                                                                        ID: <%= partner.id.substring(0, 8) %>... • 
+                                                                        Type: Internal Partner
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        <% }); %>
+                                                    </div>
+                                                <% } %>
+                                                <% if (locals.data && locals.data.externalPartners && locals.data.externalPartners.length > 0) { %>
+                                                    <div class="option-group">
+                                                        <div class="option-group-label">External Partners</div>
+                                                        <% data.externalPartners.forEach(partner => { %>
+                                                            <div class="partner-option" 
+                                                                 data-value="<%= partner.id %>" 
+                                                                 data-name="<%= partner.partnerName %>"
+                                                                 data-partner-id="<%= partner.id %>"
+                                                                 data-type="external">
+                                                                <div class="partner-info">
+                                                                    <div class="partner-name"><%= partner.partnerName %></div>
+                                                                    <div class="partner-details">
+                                                                        ID: <%= partner.id.substring(0, 8) %>... • 
+                                                                        Type: External Partner
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        <% }); %>
+                                                    </div>
+                                                <% } %>
+                                                <% if ((!locals.data || !locals.data.partners || locals.data.partners.length === 0) && 
+                                                       (!locals.data || !locals.data.externalPartners || locals.data.externalPartners.length === 0)) { %>
+                                                    <div class="no-options">
+                                                        <div class="no-options-icon">👥</div>
+                                                        <div class="no-options-text">No partners found</div>
+                                                        <div class="no-options-subtext">Please add partners first</div>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="partnerId" name="partnerId" 
+                                        value="<%= locals.deliverable ? deliverable.partnerId : '' %>">
+                                    <input type="hidden" id="partnerName" name="partnerName" 
+                                        value="<%= locals.deliverable ? deliverable.partnerName : '' %>">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="assignedTo" class="form-label required">
+                                    Assigned To
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="assignedTo" 
+                                    name="assignedTo"
+                                    class="form-input"
+                                    placeholder="Person responsible..."
+                                    value="<%= locals.deliverable ? deliverable.assignedTo : '' %>"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="notes" class="form-label">
+                                    Additional Notes
+                                </label>
+                                <textarea 
+                                    id="notes" 
+                                    name="notes"
+                                    class="form-textarea"
+                                    rows="3"
+                                    placeholder="Additional details or notes..."
+                                ><%= locals.deliverable ? deliverable.notes : '' %></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline & Status Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Timeline & Status</h3>
+                            <p class="section-subtitle">Due dates, submission tracking, and current progress</p>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="targetDate" class="form-label required">
+                                    Milestone Date
+                                </label>
+                                <input 
+                                    type="date" 
+                                    id="targetDate" 
+                                    name="targetDate"
+                                    class="form-input"
+                                    value="<%= locals.deliverable ? deliverable.targetDate?.split('T')[0] : '' %>"
+                                    required
+                                >
+                                <div class="form-help">Expected completion date</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="actualDate" class="form-label">
+                                    Actual Submission Date
+                                </label>
+                                <input 
+                                    type="date" 
+                                    id="actualDate" 
+                                    name="actualDate"
+                                    class="form-input"
+                                    value="<%= locals.deliverable && deliverable.actualDate ? deliverable.actualDate.split('T')[0] : '' %>"
+                                >
+                                <div class="form-help">Date when deliverable was actually submitted</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="approvalDate" class="form-label">
+                                    Approval Date
+                                </label>
+                                <input 
+                                    type="date" 
+                                    id="approvalDate" 
+                                    name="approvalDate"
+                                    class="form-input"
+                                    value="<%= locals.deliverable && deliverable.approvalDate ? deliverable.approvalDate.split('T')[0] : '' %>"
+                                >
+                                <div class="form-help">Date when deliverable was approved</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="status" class="form-label required">
+                                    Status
+                                </label>
+                                <select id="status" name="status" class="form-select" required>
+                                    <option value="pending" <%= locals.deliverable && deliverable.status === 'pending' ? 'selected' : '' %>>
+                                        Pending
+                                    </option>
+                                    <option value="in-progress" <%= locals.deliverable && deliverable.status === 'in-progress' ? 'selected' : '' %>>
+                                        In Progress
+                                    </option>
+                                    <option value="submitted" <%= locals.deliverable && deliverable.status === 'submitted' ? 'selected' : '' %>>
+                                        Submitted
+                                    </option>
+                                    <option value="approved" <%= locals.deliverable && deliverable.status === 'approved' ? 'selected' : '' %>>
+                                        Approved
+                                    </option>
+                                    <option value="rejected" <%= locals.deliverable && deliverable.status === 'rejected' ? 'selected' : '' %>>
+                                        Rejected
+                                    </option>
+                                    <option value="overdue" <%= locals.deliverable && deliverable.status === 'overdue' ? 'selected' : '' %>>
+                                        Overdue
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="priority" class="form-label">
+                                    Priority
+                                </label>
+                                <select id="priority" name="priority" class="form-select">
+                                    <option value="low" <%= locals.deliverable && deliverable.priority === 'low' ? 'selected' : '' %>>
+                                        Low
+                                    </option>
+                                    <option value="medium" <%= locals.deliverable && deliverable.priority === 'medium' ? 'selected' : '' %> selected>
+                                        Medium
+                                    </option>
+                                    <option value="high" <%= locals.deliverable && deliverable.priority === 'high' ? 'selected' : '' %>>
+                                        High
+                                    </option>
+                                    <option value="critical" <%= locals.deliverable && deliverable.priority === 'critical' ? 'selected' : '' %>>
+                                        Critical
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="completionPercentage" class="form-label">
+                                    Completion Percentage
+                                </label>
+                                <div class="percentage-input-group">
+                                    <input 
+                                        type="range" 
+                                        id="completionRange" 
+                                        min="0" 
+                                        max="100" 
+                                        step="5"
+                                        value="<%= locals.deliverable ? deliverable.completionPercentage || 0 : 0 %>"
+                                        class="completion-range"
+                                    >
+                                    <input 
+                                        type="number" 
+                                        id="completionPercentage" 
+                                        name="completionPercentage"
+                                        min="0" 
+                                        max="100"
+                                        value="<%= locals.deliverable ? deliverable.completionPercentage || 0 : 0 %>"
+                                        class="completion-input"
+                                    >
+                                    <span class="percentage-symbol">%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="progressFill" 
+                                            style="width: <%= locals.deliverable ? deliverable.completionPercentage || 0 : 0 %>%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Payment Information</h3>
+                            <p class="section-subtitle">Payment details and financial tracking</p>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="paymentPercentage" class="form-label">
+                                    Payment Percentage (%)
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="paymentPercentage" 
+                                    name="paymentPercentage"
+                                    class="form-input"
+                                    min="0" 
+                                    max="100"
+                                    step="0.1"
+                                    placeholder="e.g., 25.5"
+                                    value="<%= locals.deliverable ? deliverable.paymentPercentage || '' : '' %>"
+                                >
+                                <div class="form-help">Percentage of total contract value for this deliverable</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="value" class="form-label">
+                                    Payment Amount (UGX)
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="value" 
+                                    name="value"
+                                    class="form-input"
+                                    min="0"
+                                    step="1000"
+                                    placeholder="e.g., 10000000"
+                                    value="<%= locals.deliverable ? deliverable.value || '' : '' %>"
+                                >
+                                <div class="form-help">Total payment amount for this deliverable</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="paymentStatus" class="form-label">
+                                    Payment Status
+                                </label>
+                                <select id="paymentStatus" name="paymentStatus" class="form-select">
+                                    <option value="pending" <%= locals.deliverable && deliverable.paymentStatus === 'pending' ? 'selected' : '' %> selected>
+                                        Pending
+                                    </option>
+                                    <option value="processing" <%= locals.deliverable && deliverable.paymentStatus === 'processing' ? 'selected' : '' %>>
+                                        Processing
+                                    </option>
+                                    <option value="paid" <%= locals.deliverable && deliverable.paymentStatus === 'paid' ? 'selected' : '' %>>
+                                        Paid
+                                    </option>
+                                    <option value="unpaid" <%= locals.deliverable && deliverable.paymentStatus === 'unpaid' ? 'selected' : '' %>>
+                                        Unpaid
+                                    </option>
+                                    <option value="overdue" <%= locals.deliverable && deliverable.paymentStatus === 'overdue' ? 'selected' : '' %>>
+                                        Overdue
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <div class="form-actions-group">
+                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                                <span class="icon">✕</span>
+                                <span>Cancel</span>
+                            </button>
+                            
+                            <button type="reset" class="btn btn-outline">
+                                <span class="icon">↻</span>
+                                <span>Reset</span>
+                            </button>
+                            
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <span class="icon">💾</span>
+                                <span>
+                                    <% if (locals.deliverable && deliverable.id) { %>
+                                        Update Deliverable
+                                    <% } else { %>
+                                        Create Deliverable
+                                    <% } %>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+    
+    <!-- Form JavaScript -->
+    <script src="/js/forms/deliverable-form.js"></script>
+    
+    <!-- Pass data to JavaScript -->
+    <% if (locals.data) { %>
+        <script>
+            window.partnersData = <%- JSON.stringify(data.partners || []) %>;
+            window.externalPartnersData = <%- JSON.stringify(data.externalPartners || []) %>;
+            <% if (locals.deliverable) { %>
+                window.deliverableData = <%- JSON.stringify(deliverable) %>;
+            <% } %>
+        </script>
+    <% } %>
+</div>

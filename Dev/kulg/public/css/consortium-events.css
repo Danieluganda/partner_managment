@@ -1,0 +1,247 @@
+/* Consortium Events Page Styles */
+
+.events-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.search-section {
+    flex: 1;
+    min-width: 300px;
+}
+
+.search-box-events {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-box-events .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 18px;
+}
+
+.search-box-events input {
+    width: 100%;
+    padding: 10px 12px 10px 40px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.action-section {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-section {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.filter-section select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.events-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.total-events {
+    border-left: 4px solid #3b82f6;
+}
+
+.stat-card.upcoming-events {
+    border-left: 4px solid #10b981;
+}
+
+.stat-card.completed-events {
+    border-left: 4px solid #8b5cf6;
+}
+
+.stat-card.this-month-events {
+    border-left: 4px solid #f59e0b;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    border-radius: 10px;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0.25rem 0 0 0;
+}
+
+/* Events Table Specific Styles */
+.events-table {
+    width: 100%;
+}
+
+.event-name-cell {
+    max-width: 300px;
+}
+
+.event-name-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.audience-cell,
+.location-cell {
+    max-width: 200px;
+}
+
+.audience-text,
+.location-text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.format-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.format-badge.format-virtual {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.format-badge.format-physical {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.format-badge.format-hybrid {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.format-badge.format-unknown,
+.format-badge.format-tbd {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.status-badge.status-planning {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge.status-confirmed {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.status-completed {
+    background-color: #e0e7ff;
+    color: #4338ca;
+}
+
+.status-badge.status-cancelled {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .events-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box-events {
+        max-width: 100%;
+    }
+    
+    .action-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-section {
+        flex-direction: column;
+    }
+    
+    .filter-section select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .events-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .events-table {
+        font-size: 0.875rem;
+    }
+    
+    .event-name-cell,
+    .audience-cell,
+    .location-cell {
+        max-width: 150px;
+    }
+}

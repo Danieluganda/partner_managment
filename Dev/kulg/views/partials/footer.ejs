@@ -1,0 +1,18 @@
+    <!-- JavaScript Files -->
+    <script src="/js/main.js"></script>
+    
+    <!-- Additional JavaScript if provided -->
+    <% if (typeof additionalJS !== 'undefined') { %>
+        <% additionalJS.forEach(function(js) { %>
+            <script src="<%= js %>"></script>
+        <% }); %>
+    <% } %>
+    
+    <!-- Data for JavaScript if provided -->
+    <% if (typeof jsData !== 'undefined') { %>
+        <script>
+            window.dashboardData = <%- JSON.stringify(jsData) %>;
+        </script>
+    <% } %>
+</body>
+</html>

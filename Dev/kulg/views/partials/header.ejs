@@ -1,0 +1,26 @@
+<!-- Header -->
+<header class="header">
+    <div class="header-left">
+        <h1 id="page-title"><%= pageTitle || 'Dashboard Overview' %></h1>
+        <p id="page-subtitle"><%= pageSubtitle || 'Real-time partner and contract management' %></p>
+    </div>
+    <div class="header-right">
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Search partners...">
+            <span class="search-icon">🔍</span>
+        </div>
+        <button class="btn-refresh" id="refresh-btn">
+            ↻ Refresh
+        </button>
+        <div class="user-menu">
+            <div class="user-info" id="user-info">
+                <span class="user-icon">👤</span>
+                <span class="user-email" id="user-email">user@example.com</span>
+            </div>
+            <button class="logout-btn" id="logout-btn" title="Logout">
+                <span>🚪</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+</header>

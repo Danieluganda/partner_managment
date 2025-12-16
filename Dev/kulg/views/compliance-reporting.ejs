@@ -1,0 +1,275 @@
+<%- include('partials/head', { 
+    title: 'Compliance & Reporting - Partner Dashboard',
+    additionalCSS: ['/css/compliance-reporting.css', '/css/components/tables.css']
+}) %>
+
+<div class="dashboard-layout">
+    <%- include('partials/sidebar') %>
+    
+    <div class="main-content">
+        <div class="content-area">
+            <!-- Success/Error Messages -->
+            <% if (typeof query !== 'undefined' && query.success === 'created') { %>
+                <div class="alert alert-success">
+                    <span class="alert-icon">✅</span>
+                    <span>Compliance requirement created successfully!</span>
+                </div>
+            <% } %>
+            
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">Compliance & Reporting</h1>
+                    <p class="page-subtitle">Monitor compliance requirements and generate reports</p>
+                </div>
+                <div class="page-actions">
+                    <a href="/forms/compliance" class="btn-primary">
+                        <span class="icon">+</span>
+                        <span>Add Requirement</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Compliance Controls -->
+            <div class="compliance-controls">
+                <div class="search-section">
+                    <div class="search-box-compliance">
+                        <span class="search-icon">🔍</span>
+                        <input 
+                            type="text" 
+                            id="complianceSearch" 
+                            class="table-search" 
+                            placeholder="Search partners..."
+                        >
+                    </div>
+                </div>
+                
+                <div class="action-section">
+                    <button id="refreshComplianceBtn" class="btn-action refresh">
+                        <span class="icon">↻</span>
+                        <span>Refresh</span>
+                    </button>
+                    <div class="search-quick">
+                        <input 
+                            type="text" 
+                            id="quickComplianceSearch" 
+                            class="quick-search-input" 
+                            placeholder="Search requirements..."
+                        >
+                    </div>
+                    <div class="filter-section">
+                        <select id="statusComplianceFilter" class="status-filter">
+                            <option value="">All Status</option>
+                            <option value="compliant">Compliant</option>
+                            <option value="pending">Pending</option>
+                            <option value="overdue">Overdue</option>
+                            <option value="non-compliant">Non-Compliant</option>
+                        </select>
+                    </div>
+                    <div class="filter-section">
+                        <select id="auditFilter" class="status-filter">
+                            <option value="">All Audits</option>
+                            <option value="pass">Pass</option>
+                            <option value="fail">Fail</option>
+                            <option value="pending">Pending</option>
+                            <option value="not-audited">Not Audited</option>
+                        </select>
+                    </div>
+                    <button id="exportComplianceBtn" class="btn-export">
+                        <span class="icon">📥</span>
+                        <span>Export</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Compliance Summary Stats -->
+            <div class="compliance-stats-grid">
+                <div class="stat-card total-requirements">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="totalRequirements">0</h3>
+                        <p class="stat-label">Total Requirements</p>
+                    </div>
+                </div>
+                <div class="stat-card compliant-items">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="compliantItems">0</h3>
+                        <p class="stat-label">Compliant</p>
+                    </div>
+                </div>
+                <div class="stat-card pending-items">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="pendingItems">0</h3>
+                        <p class="stat-label">Pending</p>
+                    </div>
+                </div>
+                <div class="stat-card overdue-items">
+                    <div class="stat-icon">🚨</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="overdueItems">0</h3>
+                        <p class="stat-label">Overdue</p>
+                    </div>
+                </div>
+                <div class="stat-card audit-pass">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="auditPassItems">0</h3>
+                        <p class="stat-label">Audit Pass</p>
+                    </div>
+                </div>
+                <div class="stat-card compliance-rate">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 class="stat-value" id="complianceRate">0%</h3>
+                        <p class="stat-label">Compliance Rate</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compliance Table -->
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table class="data-table compliance-table" id="complianceTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="partnerId">
+                                    Partner ID
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="partnerName">
+                                    Partner Name
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="requirement-col">Requirement</th>
+                                <th class="sortable" data-sort="dueDate">
+                                    Due Date
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="reportingPeriod">
+                                    Reporting Period
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="submissionDate">
+                                    Submission Date
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="status">
+                                    Status
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="sortable" data-sort="fmcsAudit">
+                                    FMCS Audit
+                                    <span class="sort-indicator"></span>
+                                </th>
+                                <th class="notes-col">Notes</th>
+                                <th class="actions-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complianceTableBody">
+                            <!-- Table data will be populated by JavaScript -->
+                            <% if (typeof data !== 'undefined' && data.compliance && data.compliance.length > 0) { %>
+                                <% data.compliance.forEach(function(item) { %>
+                                    <tr>
+                                        <td><%= item.partnerId %></td>
+                                        <td>
+                                            <div class="partner-name-cell">
+                                                <%= item.partnerName %>
+                                            </div>
+                                        </td>
+                                        <td class="requirement-cell">
+                                            <span class="requirement-text" title="<%= item.requirement %>">
+                                                <%= item.requirement %>
+                                            </span>
+                                        </td>
+                                        <td class="date-cell">
+                                            <%= item.dueDate %>
+                                        </td>
+                                        <td class="period-cell">
+                                            <%= item.reportingPeriod %>
+                                        </td>
+                                        <td class="date-cell">
+                                            <%= item.submissionDate || '-' %>
+                                        </td>
+                                        <td class="status-cell">
+                                            <span class="status-badge status-<%= (item.status || 'pending').toLowerCase().replace(' ', '-') %>">
+                                                <%= item.status || 'Pending' %>
+                                            </span>
+                                        </td>
+                                        <td class="audit-cell">
+                                            <span class="audit-badge audit-<%= (item.fmcsAudit || 'not-audited').toLowerCase().replace(' ', '-') %>">
+                                                <%= item.fmcsAudit || 'Not Audited' %>
+                                            </span>
+                                        </td>
+                                        <td class="notes-cell">
+                                            <span class="notes-text" title="<%= item.notes || '-' %>">
+                                                <%= item.notes || '-' %>
+                                            </span>
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="action-btn view" onclick="viewComplianceDetails('<%= item.partnerId %>', '<%= item.requirement %>')">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="10" class="no-data">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">📋</div>
+                                            <div class="empty-text">No compliance data available</div>
+                                            <div class="empty-subtext">Compliance records will appear here when available</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Table Information Footer -->
+            <div class="table-info">
+                <div class="table-stats">
+                    <div class="stat-item">
+                        Showing <strong id="showingComplianceCount">0</strong> of <strong id="totalComplianceCount">0</strong> requirements
+                    </div>
+                    <div class="stat-item">
+                        Compliant: <strong id="footerCompliantCount">0</strong>
+                    </div>
+                    <div class="stat-item">
+                        Pending: <strong id="footerPendingCount">0</strong>
+                    </div>
+                    <div class="stat-item">
+                        Overdue: <strong id="footerOverdueCount">0</strong>
+                    </div>
+                    <div class="stat-item">
+                        Compliance Rate: <strong id="footerComplianceRate">0%</strong>
+                    </div>
+                </div>
+                
+                <div class="pagination">
+                    <span class="page-info">Page 1 of 1</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <% if (typeof additionalJS !== 'undefined' && additionalJS) { %>
+        <% additionalJS.forEach(function(jsFile) { %>
+            <script src="<%= jsFile %>"></script>
+        <% }); %>
+    <% } %>
+    <script src="/js/compliance-reporting.js"></script>
+
+    <% if (typeof jsData !== 'undefined' && jsData) { %>
+        <script>
+            window.complianceData = <%- JSON.stringify(jsData.compliance || []) %>;
+            window.statsData = <%- JSON.stringify(jsData.stats || {}) %>;
+        </script>
+    <% } %>
+        </div>
+    </div>
+</div>
