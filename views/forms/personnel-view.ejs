@@ -1,0 +1,155 @@
+<%- include('../partials/head', { title: 'View Personnel' }) %>
+
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+
+      <div class="main-content">
+        <div class="content-area">
+          <!-- Header -->
+          <div class="page-header">
+            <div class="page-header-content">
+              <h1 class="page-title">
+                <%= personnel.fullName %>
+              </h1>
+              <p class="page-subtitle">
+                <%= personnel.jobTitle %> at <%= personnel.partnerName %>
+              </p>
+            </div>
+            <div class="page-actions">
+              <a href="/forms/personnel/<%= personnel.id %>/edit" class="btn btn-primary">
+                <span class="icon">✎</span>
+                <span>Edit</span>
+              </a>
+              <a href="/key-personnel" class="btn btn-secondary">
+                <span class="icon">←</span>
+                <span>Back</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Details Card -->
+          <div class="view-card"
+            style="background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div class="info-grid"
+              style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+
+              <!-- Basic Info -->
+              <div class="info-section">
+                <h3 style="margin-bottom: 1rem; color: #444; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">
+                  Basic Information</h3>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Full Name</strong>
+                  <span style="font-size: 1.1rem;">
+                    <%= personnel.fullName %>
+                  </span>
+                </div>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Job Title</strong>
+                  <span>
+                    <%= personnel.jobTitle %>
+                  </span>
+                </div>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Department</strong>
+                  <span>
+                    <%= personnel.department || '-' %>
+                  </span>
+                </div>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Seniority</strong>
+                  <span>
+                    <%= personnel.seniority || '-' %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Contact -->
+              <div class="info-section">
+                <h3 style="margin-bottom: 1rem; color: #444; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">
+                  Contact Information</h3>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Email</strong>
+                  <a href="mailto:<%= personnel.emailAddress %>" style="color: #007bff; text-decoration: none;">
+                    <%= personnel.emailAddress %>
+                  </a>
+                </div>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Phone</strong>
+                  <span>
+                    <%= personnel.phoneNumber || '-' %>
+                  </span>
+                </div>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Office Location</strong>
+                  <span>
+                    <%= personnel.officeLocation || '-' %>
+                  </span>
+                </div>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Preferred Contact</strong>
+                  <span>
+                    <%= personnel.preferredContact || '-' %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Partner Info -->
+              <div class="info-section">
+                <h3 style="margin-bottom: 1rem; color: #444; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">
+                  Partner Details</h3>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Partner Name</strong>
+                  <span>
+                    <%= personnel.partnerName || 'N/A' %>
+                  </span>
+                </div>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Partner Type</strong>
+                  <span style="text-transform: capitalize;">
+                    <%= personnel.partnerType || '-' %>
+                  </span>
+                </div>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Work Status</strong>
+                  <span class="status-badge <%= (personnel.workStatus || '').toLowerCase().replace(' ', '-') %>"
+                    style="padding: 2px 8px; border-radius: 4px; background: #eee; font-size: 0.9rem;">
+                    <%= personnel.workStatus || 'Unknown' %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Work -->
+              <div class="info-section">
+                <h3 style="margin-bottom: 1rem; color: #444; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">
+                  Responsibilities</h3>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Key Responsibilities</strong>
+                  <p style="margin-top: 0.2rem; line-height: 1.5;">
+                    <%= personnel.responsibilities || '-' %>
+                  </p>
+                </div>
+                <div class="info-row" style="margin-bottom: 0.8rem;">
+                  <strong style="display: block; font-size: 0.85rem; color: #888;">Current Projects</strong>
+                  <p style="margin-top: 0.2rem; line-height: 1.5;">
+                    <%= personnel.projectAssignments || '-' %>
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Notes -->
+            <% if (personnel.notes) { %>
+              <div class="info-section" style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                <h3 style="margin-bottom: 1rem; color: #444;">Notes</h3>
+                <p style="background: #f9f9f9; padding: 1rem; border-radius: 4px; white-space: pre-wrap;">
+                  <%= personnel.notes %>
+                </p>
+              </div>
+              <% } %>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <%- include('../partials/footer') %>

@@ -34,8 +34,8 @@ async function loadSharedViewData() {
         ]);
 
         // Normalize to plain objects / summaries used by templates
-        const partnersData = (partners || []).map(p => (p && p.getSummary) ? p.getSummary() : p);
-        const personnelData = (personnel || []).map(p => (p && p.getSummary) ? p.getSummary() : p);
+        const partnersData = (partners || []).map(p => (p && typeof p.getSummary === 'function') ? p.getSummary() : safeGetSummary(p));
+        const personnelData = (personnel || []).map(p => (p && typeof p.getSummary === 'function') ? p.getSummary() : safeGetSummary(p));
 
         const derivedStats = Object.assign({}, stats || {}, {
             totalPartners: partnersData.length,
@@ -83,6 +83,54 @@ app.use(async (req, res, next) => {
 
     next();
 });
+
+// ---- CHANGES START: ensure global prisma and pass databaseService into Excel loader/importer ----
+
+// Ensure a global Prisma client if DATABASE_URL is configured
+if (!global.prisma && process.env.DATABASE_URL) {
+    global.prisma = new PrismaClient();
+}
+
+// Make sure DatabaseService uses the same prisma instance
+databaseService.prisma = global.prisma || null;
+
+// Connect databaseService (will fall back to JSON store if DB unavailable)
+(async () => {
+  try {
+    await databaseService.connect();
+    console.log('📚 Database connected successfully');
+  } catch (err) {
+    console.warn('DatabaseService.connect failed, continuing with JSON fallback:', err && err.message);
+  }
+
+  // Skip ExcelLoader in test environment or when explicitly disabled
+  if (process.env.DISABLE_EXCEL_LOADER) {
+    console.log('ExcelLoader disabled for this process.');
+    return;
+  }
+
+  // Initialize Excel loader/importer and give it the databaseService instance so imports persist
+  try {
+    const ExcelLoader = require('./services/ExcelLoader');
+    if (typeof ExcelLoader.init === 'function') {
+      ExcelLoader.init({ databaseService, prisma: databaseService.prisma });
+    } else if (ExcelLoader && ExcelLoader.default && typeof ExcelLoader.default.init === 'function') {
+      ExcelLoader.default.init({ databaseService, prisma: databaseService.prisma });
+    } else {
+      // fallback: instantiate importer directly if ExcelImporter expects a DB instance
+      try {
+        const importer = new (require('./services/ExcelImporter'))({ databaseService });
+        global.excelImporter = importer;
+      } catch (e) {
+        console.warn('ExcelLoader / ExcelImporter init fallback failed:', e && e.message);
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to initialize ExcelLoader/Importer:', e && e.message);
+  }
+})();
+
+// ---- CHANGES END ----
 
 const PORT = process.env.PORT || 3000;
 
@@ -679,9 +727,9 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
             pageSubtitle: 'Real-time partner and contract management',
             user: req.user,
             data: {
-                masterRegister: partners.map(p => p.getSummary()),
-                financialSummary: financialData.map(f => f.getSummary()),
-                externalPartners: externalPartners.map(ep => ep.getSummary()),
+                masterRegister: (partners || []).map(p => (p && typeof p.getSummary === 'function') ? p.getSummary() : safeGetSummary(p)),
+                financialSummary: (financialData || []).map(f => (f && typeof f.getSummary === 'function') ? f.getSummary() : safeGetSummary(f)),
+                externalPartners: (externalPartners || []).map(ep => (ep && typeof ep.getSummary === 'function') ? ep.getSummary() : safeGetSummary(ep)),
                 stats
             },
             jsData: {
@@ -1215,13 +1263,13 @@ app.get('/external-partners', async (req, res) => {
             pageTitle: 'External Partners Tracker',
             pageSubtitle: 'Real-time partner and contract management',
             data: {
-                externalPartners: externalPartners.map(ep => ep.getSummary()), // Use real data if available
+                externalPartners: (externalPartners || []).map(ep => (ep && typeof ep.getSummary === 'function') ? ep.getSummary() : safeGetSummary(ep)),
                 partners,
                 stats
             },
             jsData: {
-                externalPartners: externalPartners.map(ep => ep.getSummary()),
-                partners: partners.map(p => p.getSummary()),
+                externalPartners: (externalPartners || []).map(ep => (ep && typeof ep.getSummary === 'function') ? ep.getSummary() : safeGetSummary(ep)),
+                partners: (partners || []).map(p => (p && typeof p.getSummary === 'function') ? p.getSummary() : safeGetSummary(p)),
                 stats
             },
             additionalCSS: ['/css/external-partners.css'],
@@ -1251,8 +1299,8 @@ app.get('/README.md', (req, res) => {
 app.get('/api/partners', async (req, res) => {
     try {
         const partners = await databaseService.getPartners();
-        // Handle both objects with getSummary and plain objects
-        const response = partners.map(p => p.getSummary ? p.getSummary() : p);
+        // Handle both objects with getSummary and plain objects; use safe fallback
+        const response = (partners || []).map(p => (p && typeof p.getSummary === 'function') ? p.getSummary() : safeGetSummary(p));
         res.json(response);
     } catch (error) {
         console.error('❌ API partners error:', error);
@@ -1263,7 +1311,7 @@ app.get('/api/partners', async (req, res) => {
 app.get('/api/external-partners', async (req, res) => {
     try {
         const external = await databaseService.getExternalPartners();
-        const response = external.map(ep => ep.getSummary ? ep.getSummary() : ep);
+        const response = (external || []).map(ep => (ep && typeof ep.getSummary === 'function') ? ep.getSummary() : safeGetSummary(ep));
         res.json(response);
     } catch (error) {
         console.error('❌ API external partners error:', error);
@@ -1421,6 +1469,32 @@ app.get('/forms/partner/:id/view', async (req, res) => {
     }
 });
 
+// View Personnel Details Route
+app.get('/personnel/:id', async (req, res) => {
+    try {
+        const personnelId = req.params.id;
+        const personnel = await databaseService.getPersonnelById(personnelId);
+
+        if (!personnel) {
+            return res.status(404).render('404', {
+                title: 'Personnel Not Found',
+                message: 'The requested personnel record could not be found.'
+            });
+        }
+
+        res.render('forms/personnel-view', {
+            title: 'View Personnel',
+            pageTitle: 'Personnel Details',
+            pageSubtitle: `Details for ${personnel.fullName}`,
+            personnel: personnel,
+            // Assuming common sidebar partials might use 'user' or other locals which are handled by middleware if present
+        });
+    } catch (error) {
+        console.error('Error loading personnel for view:', error);
+        res.render('error', { error });
+    }
+});
+
 // External Partner Form Routes
 app.get('/forms/external-partner', (req, res) => {
     res.render('forms/external-partner-form', {
@@ -1433,6 +1507,105 @@ app.get('/forms/external-partner', (req, res) => {
         additionalJS: ['/js/forms/external-partner-form.js']
     });
 });
+
+// Personnel Form Routes
+app.get('/forms/personnel', async (req, res) => {
+    try {
+        const partners = await databaseService.getPartners() || [];
+        const externalPartners = await databaseService.getExternalPartners() || [];
+        
+        res.render('forms/personnel-form', {
+            title: 'Add Personnel',
+            pageTitle: 'Add Personnel',
+            pageSubtitle: 'Add new personnel to the directory',
+            editMode: false,
+            jsData: { partners, externalPartners },
+            additionalCSS: ['/css/forms/personnel-form.css'],
+            additionalJS: ['/js/forms/personnel-form.js']
+        });
+    } catch (error) {
+        console.error('Error loading personnel form:', error);
+        res.render('error', { error });
+    }
+});
+
+app.get('/forms/personnel/:id/edit', async (req, res) => {
+    try {
+        const personnelId = req.params.id;
+        const personnel = await databaseService.getPersonnelById(personnelId);
+        
+        if (!personnel) {
+            return res.status(404).render('404', {
+                title: 'Personnel Not Found',
+                message: 'The requested personnel record could not be found.'
+            });
+        }
+
+        const partners = await databaseService.getPartners() || [];
+        const externalPartners = await databaseService.getExternalPartners() || [];
+
+        res.render('forms/personnel-form', {
+            title: 'Edit Personnel',
+            pageTitle: 'Edit Personnel',
+            pageSubtitle: `Update details for ${personnel.fullName}`,
+            editMode: true,
+            personnel: personnel,
+            jsData: { partners, externalPartners },
+            additionalCSS: ['/css/forms/personnel-form.css'],
+            additionalJS: ['/js/forms/personnel-form.js']
+        });
+    } catch (error) {
+        console.error('Error loading personnel for edit:', error);
+        res.render('error', { error });
+    }
+});
+
+// Personnel API Routes
+app.post('/api/personnel', async (req, res) => {
+    try {
+        const personnelData = req.body;
+        // Basic validation
+        if (!personnelData.fullName || !personnelData.emailAddress) {
+             return res.status(400).json({ error: 'Full Name and Email Address are required' });
+        }
+        
+        await databaseService.createPersonnel(personnelData);
+        
+        // Handle form submission redirect or JSON response
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+            res.json({ success: true, message: 'Personnel created' });
+        } else {
+            res.redirect('/key-personnel');
+        }
+    } catch (error) {
+        console.error('Error creating personnel:', error);
+        res.status(500).send('Error creating personnel');
+    }
+});
+
+// Handle Update (Support both PUT and POST for edit form override)
+const updatePersonnelHandler = async (req, res) => {
+    try {
+        const personnelId = req.params.id;
+        const updateData = req.body;
+        delete updateData._method; // clean up
+        delete updateData.id;
+
+        await databaseService.updatePersonnel(personnelId, updateData);
+        
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+            res.json({ success: true, message: 'Personnel updated' });
+        } else {
+            res.redirect(`/personnel/${personnelId}`);
+        }
+    } catch (error) {
+        console.error('Error updating personnel:', error);
+        res.status(500).send('Error updating personnel');
+    }
+};
+
+app.put('/api/personnel/:id', updatePersonnelHandler);
+app.post('/api/personnel/:id', updatePersonnelHandler); // alias for form submission
 
 app.get('/forms/external-partner/:id/edit', async (req, res) => {
     try {
@@ -1672,8 +1845,8 @@ app.get('/forms/personnel', async (req, res) => {
             mode: 'create',
             editMode: false,
             jsData: {
-                partners: partners.map(p => p.getSummary()),
-                externalPartners: externalPartners.map(p => p.getSummary())
+                partners: (partners || []).map(p => (p && typeof p.getSummary === 'function') ? p.getSummary() : safeGetSummary(p)),
+                externalPartners: (externalPartners || []).map(p => (p && typeof p.getSummary === 'function') ? p.getSummary() : safeGetSummary(p))
             },
             additionalCSS: ['/css/forms/personnel-form.css'],
             additionalJS: ['/js/forms/personnel-form.js']
@@ -1706,8 +1879,8 @@ app.get('/forms/personnel/:id/edit', async (req, res) => {
             personnelId: personnelId,
             personnel: personnel.getDisplayValues(),
             jsData: {
-                partners: partners.map(p => p.getSummary()),
-                externalPartners: externalPartners.map(p => p.getSummary())
+                partners: (partners || []).map(p => (p && typeof p.getSummary === 'function') ? p.getSummary() : safeGetSummary(p)),
+                externalPartners: (externalPartners || []).map(p => (p && typeof p.getSummary === 'function') ? p.getSummary() : safeGetSummary(p))
             },
             additionalCSS: ['/css/forms/personnel-form.css'],
             additionalJS: ['/js/forms/personnel-form.js']
@@ -2146,41 +2319,47 @@ app.get('/test-jwt', (req, res) => {
     const jwt = require('jsonwebtoken');
     console.log('🧪 Testing JWT generation...');
     console.log('🧪 JWT_SECRET from env:', process.env.JWT_SECRET);
-    console.log('🧪 JWT_SECRET length:', process.env.JWT_SECRET?.length || 0);
-    
+    console.log('🧪 JWT_SECRET length:', (process.env.JWT_SECRET || '').length);
+
     try {
-        const testPayload = { 
-            test: 'data', 
+        const testPayload = {
+            test: 'data',
             timestamp: Date.now(),
             userId: 'test-123'
         };
-        
+
         console.log('🧪 Test payload:', testPayload);
-        
+
+       
+
+
+        // Use a fallback secret to avoid throwing if env var missing (for dev only)
+        const secret = process.env.JWT_SECRET || 'dev-fallback-secret';
+
         const testToken = jwt.sign(
             testPayload,
-            process.env.JWT_SECRET,
+            secret,
             { expiresIn: '1h' }
         );
-        
+
         console.log('✅ Test token generated successfully');
         console.log('🧪 Token length:', testToken.length);
         console.log('🧪 Token preview:', testToken.substring(0, 50) + '...');
-        
+
         // Try to verify it
-        const decoded = jwt.verify(testToken, process.env.JWT_SECRET);
+        const decoded = jwt.verify(testToken, secret);
         console.log('✅ Token verified successfully:', decoded);
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             message: 'JWT working correctly',
             tokenLength: testToken.length,
             decoded: decoded
         });
     } catch (error) {
         console.error('❌ JWT test failed:', error);
-        res.status(500).json({ 
-            success: false, 
+        res.status(500).json({
+            success: false,
             error: error.message,
             stack: error.stack
         });

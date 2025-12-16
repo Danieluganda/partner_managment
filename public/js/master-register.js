@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
             renderEmptyState();
         } else {
             // Call this on page load
-            renderTableRows(partners);
+            // renderTableRows(partners);
         }
     }
     
@@ -307,5 +307,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Call this on page load
-    renderTableRows(partners);
+    // renderTableRows(partners);
 });

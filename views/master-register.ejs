@@ -1,155 +1,143 @@
-<%- include('partials/head', { title: 'Master Partner Register - Partner Dashboard' , additionalCSS:
-    ['/css/master-register.css', '/css/components/tables.css' ] }) %>
+﻿<%- include('partials/head', { title: 'Master Partner Register - Partner Dashboard' , additionalCSS: ['/css/master-register.css', '/css/components/tables.css' ] }) %>
 
-    <div class="dashboard-layout">
-        <%- include('partials/sidebar', { title: 'Master Partner Register - Partner Dashboard' }) %>
+<div class="dashboard-layout">
+    <%- include('partials/sidebar', { title: 'Master Partner Register - Partner Dashboard' }) %>
 
-            <div class="main-content">
-                <div class="content-area">
-                    <!-- Page Header -->
-                    <div class="page-header">
-                        <div class="page-header-content">
-                            <h1 class="page-title">Master Partner Register</h1>
-                            <p class="page-subtitle">Real-time partner and contract management</p>
-                        </div>
-                    </div>
-
-                    <!-- Page Controls -->
-                    <div class="page-controls">
-                        <div class="search-controls">
-                            <div class="search-box-extended">
-                                <input type="text" id="partner-search" class="table-search"
-                                    placeholder="Search partners...">
-                                <span class="search-icon">🔍</span>
-                            </div>
-                        </div>
-                        <div class="action-controls">
-                            <a href="/forms/partner" class="btn-primary" id="new-partner">
-                                <span>➕</span>
-                                <span>New Partner</span>
-                            </a>
-                            <button class="btn-refresh" id="refresh-partners">
-                                <span>↻</span>
-                                <span>Refresh</span>
-                            </button>
-                            <button class="btn-export" id="export-partners">
-                                <span>📥</span>
-                                <span>Export</span>
-                            </button>
-
-                            <!-- Add: options to upload Master Excel or use the manual form -->
-
-                                  <button class="btn-export" id="export-partners">
-                                  <a href="/excel/template" class="btn-secondary" id="download-template" title="Download official Master Register template">
-                                <span>📄</span>
-                                <span>Download Template</span>
-                            </a>
-                            </button>
-
-                                  <button class="btn-export" id="export-partners">
-                                 <a href="/excel/upload-form" class="btn-secondary" id="upload-excel">
-                                <span>⬆️</span>
-                                <span>Upload Excel</span>
-                            </a> </button>
-                            </button>
-
- 
-                           
-                           
-                        </div>
-                    </div>
-
-                    <!-- Master Register Table -->
-                    <div class="table-container">
-                        <div class="table-wrapper">
-                            <table class="data-table" id="master-register-table">
-                                <thead>
-                                    <tr>
-                                        <th>Partner ID</th>
-                                        <th>Partner Name</th>
-                                        <th>Contract Status</th>
-                                        <th>Framework Agreement Date</th>
-                                        <th>Commencement Date</th>
-                                        <th>Term (Years)</th>
-                                        <th>Current Task Order</th>
-                                        <th>Regions of Operation</th>
-                                        <th>Key Personnel</th>
-                                        <th>Task Order Price (Year 1)</th>
-                                        <th>Contract Link</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% if (Array.isArray(partners) && partners.length > 0) { %>
-                                        <% partners.forEach(function(partner){ %>
-                                            <tr>
-                                                <td><%= partner.partner_id || partner.id || '-' %></td>
-                                                <td class="partner-name"><%= partner.partner_name || partner.partnerName || '-' %></td>
-                                                <td>
-                                                    <span class="status-badge <%= (partner.contract_status === 'Signed' || partner.contract_status === 'Active') ? 'signed' : 'contracting' %>">
-                                                        <%= partner.contract_status || partner.contractStatus || 'Unknown' %>
-                                                    </span>
-                                                </td>
-                                                <td><%= partner.framework_agreement_date || partner.frameworkAgreementDate || '-' %></td>
-                                                <td><%= partner.commencement_date || partner.commencementDate || '-' %></td>
-                                                <td><%= partner.contract_term_years || partner.contractTermYears || '-' %></td>
-                                                <td><%= partner.current_task_order || partner.currentTaskOrder || '-' %></td>
-                                                <td class="regions-cell">
-                                                    <span class="regions-text"><%= Array.isArray(partner.regions_of_operation) ? partner.regions_of_operation.join(', ') : (partner.regions_of_operation || partner.regionsOfOperation || '-') %></span>
-                                                </td>
-                                                <td><%= partner.key_personnel || partner.keyPersonnel || '-' %></td>
-                                                <td class="price-cell"><span class="price-amount"><%= partner.task_order_price_y1 || partner.taskOrderPriceY1 || partner.contractValue || '-' %></span></td>
-                                                <td>
-                                                    <% if (partner.contract_link || partner.contractLink) { %>
-                                                        <a href="<%= partner.contract_link || partner.contractLink %>" target="_blank">View</a>
-                                                    <% } else { %>
-                                                        -
-                                                    <% } %>
-                                                </td>
-                                                <td class="actions-cell">
-                                                    <button class="action-btn view-btn" data-partner-id="<%= partner.partner_id || partner.id %>">View</button>
-                                                    <a href="/forms/partner/<%= partner.partner_id || partner.id %>/edit" class="action-btn edit">Edit</a>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    <% } else { %>
-                                        <tr>
-                                            <td colspan="12" class="no-data">
-                                                <div class="empty-state">
-                                                    <div class="empty-icon">📋</div>
-                                                    <div class="empty-text">No partners found</div>
-                                                    <div class="empty-subtext">Partners will appear here once data is loaded</div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <% } %>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Table Info -->
-                    <div class="table-info">
-                        <div class="table-stats">
-                            <span class="stat-item">
-                                <strong id="total-count"><%= Array.isArray(partners) ? partners.length : 0 %></strong> partners total
-                            </span>
-                            <span class="stat-item">
-                                <strong id="signed-count"><%= Array.isArray(partners) ? partners.filter(function(p){ return (p.contract_status === 'Signed' || p.contract_status === 'Active' || p.contractStatus === 'Signed' || p.contractStatus === 'Active'); }).length : 0 %></strong> signed contracts
-                            </span>
-                            <span class="stat-item">
-                                <strong id="filtered-count"><%= Array.isArray(partners) ? partners.length : 0 %></strong> showing
-                            </span>
-                        </div>
-                        <div class="pagination">
-                            <span class="page-info">Page 1 of 1</span>
-                        </div>
-                    </div>
+    <div class="main-content">
+        <div class="content-area">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">Master Partner Register</h1>
+                    <p class="page-subtitle">Real-time partner and contract management</p>
                 </div>
             </div>
-    </div>
 
-    <%- include('partials/footer', { additionalJS: ['/js/master-register.js'] }) %>
+            <!-- Page Controls -->
+            <div class="page-controls">
+                <div class="search-controls">
+                    <div class="search-box-extended">
+                        <input type="text" id="partner-search" class="table-search" placeholder="Search partners...">
+                        <span class="search-icon"></span>
+                    </div>
+                </div>
+                <div class="action-controls">
+                    <a href="/forms/partner" class="btn-primary" id="new-partner">
+                        <span></span>
+                        <span>New Partner</span>
+                    </a>
+                    <button class="btn-refresh" id="refresh-partners">
+                        <span></span>
+                        <span>Refresh</span>
+                    </button>
+                    <button class="btn-export" id="export-partners">
+                        <span></span>
+                        <span>Export</span>
+                    </button>
+
+                    <a href="/excel/template" class="btn-secondary" id="download-template" title="Download official Master Register template">
+                        <span></span>
+                        <span>Download Template</span>
+                    </a>
+
+                    <a href="/excel/upload-form" class="btn-secondary" id="upload-excel">
+                        <span></span>
+                        <span>Upload Excel</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Master Register Table -->
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table class="data-table" id="master-register-table">
+                        <thead>
+                            <tr>
+                                <th>Partner ID</th>
+                                <th>Partner Name</th>
+                                <th>Contract Status</th>
+                                <th>Framework Agreement Date</th>
+                                <th>Commencement Date</th>
+                                <th>Term (Years)</th>
+                                <th>Current Task Order</th>
+                                <th>Regions of Operation</th>
+                                <th>Key Personnel</th>
+                                <th>Task Order Price (Year 1)</th>
+                                <th>Contract Link</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (Array.isArray(partners) && partners.length > 0) { %>
+                                <% partners.forEach(function(partner){ %>
+                                    <tr>
+                                        <td><%= partner.partner_id || partner.id || '-' %></td>
+                                        <td class="partner-name"><%= partner.partner_name || partner.partnerName || '-' %></td>
+                                        <td>
+                                            <span class="status-badge <%= (partner.contract_status === 'Signed' || partner.contract_status === 'Active') ? 'signed' : 'contracting' %>">
+                                                <%= partner.contract_status || partner.contractStatus || 'Unknown' %>
+                                            </span>
+                                        </td>
+                                        <td><%= partner.framework_agreement_date || partner.frameworkAgreementDate || '-' %></td>
+                                        <td><%= partner.commencement_date || partner.commencementDate || '-' %></td>
+                                        <td><%= partner.contract_term_years || partner.contractTermYears || '-' %></td>
+                                        <td><%= partner.current_task_order || partner.currentTaskOrder || '-' %></td>
+                                        <td class="regions-cell">
+                                            <span class="regions-text"><%= Array.isArray(partner.regions_of_operation) ? partner.regions_of_operation.join(', ') : (partner.regions_of_operation || partner.regionsOfOperation || '-') %></span>
+                                        </td>
+                                        <td><%= partner.key_personnel || partner.keyPersonnel || '-' %></td>
+                                        <td class="price-cell"><span class="price-amount"><%= partner.task_order_price_y1 || partner.taskOrderPriceY1 || partner.contractValue || '-' %></span></td>
+                                        <td>
+                                            <% if (partner.contract_link || partner.contractLink) { %>
+                                                <a href="<%= partner.contract_link || partner.contractLink %>" target="_blank">View</a>
+                                            <% } else { %>
+                                                -
+                                            <% } %>
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="action-btn view-btn" data-partner-id="<%= partner.partner_id || partner.id %>">View</button>
+                                            <a href="/forms/partner/<%= partner.partner_id || partner.id %>/edit" class="action-btn edit">Edit</a>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="12" class="no-data">
+                                        <div class="empty-state">
+                                            <div class="empty-icon"></div>
+                                            <div class="empty-text">No partners found</div>
+                                            <div class="empty-subtext">Partners will appear here once data is loaded</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Table Info -->
+            <div class="table-info">
+                <div class="table-stats">
+                    <span class="stat-item">
+                        <strong id="total-count"><%= Array.isArray(partners) ? partners.length : 0 %></strong> partners total
+                    </span>
+                    <span class="stat-item">
+                        <strong id="signed-count"><%= Array.isArray(partners) ? partners.filter(function(p){ return (p.contract_status === 'Signed' || p.contract_status === 'Active' || p.contractStatus === 'Signed' || p.contractStatus === 'Active'); }).length : 0 %></strong> signed contracts
+                    </span>
+                    <span class="stat-item">
+                        <strong id="filtered-count"><%= Array.isArray(partners) ? partners.length : 0 %></strong> showing
+                    </span>
+                </div>
+                <div class="pagination">
+                    <span class="page-info">Page 1 of 1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer', { additionalJS: ['/js/master-register.js'] }) %>
 
 <script>
     // expose sanitized data for front-end usage
@@ -162,7 +150,7 @@
     // handle view action
     window.viewPartner = function(partnerId) {
         if (!partnerId) return;
-        window.location.href = '/forms/partner/' + encodeURIComponent(partnerId) + '/report';
+        window.location.href = '/forms/partner/' + encodeURIComponent(partnerId) + '/view';
     };
 
     // attach delegated click handler for view buttons

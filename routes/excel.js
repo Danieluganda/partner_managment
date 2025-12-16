@@ -105,7 +105,71 @@ router.get('/upload-form', (req, res) => {
   res.render('upload-excel', { title: 'Upload Excel' });
 });
 
-// POST: upload (existing validation code)
-// ...existing upload POST handler code...
+// POST: upload and preview
+router.post('/upload', upload.single('excel_file'), async (req, res) => {
+  if (!req.file) return res.status(400).send('No file uploaded.');
+
+  try {
+    const filePath = req.file.path;
+    const ExcelImporter = require('../services/ExcelImporter');
+    const importer = new ExcelImporter(prisma, { dir: UPLOAD_DIR });
+    
+    // Parse file for preview
+    const parsedData = await importer.parseFile(filePath);
+    
+    // Render preview page
+    res.render('preview-excel', { 
+        title: 'Preview Data Import', 
+        filename: req.file.originalname,
+        uploadedPath: req.file.filename, // just the basename in uploads
+        data: parsedData
+    });
+  } catch (err) {
+    console.error('Upload preview error:', err);
+    res.status(500).render('error', { error: err });
+  }
+});
+
+// POST: confirm import
+router.post('/confirm', async (req, res) => {
+    try {
+        const { uploadedPath, sheetsToImport } = req.body; // sheetsToImport is array of sheet names
+        if (!uploadedPath) return res.status(400).send('Missing file reference.');
+
+        const filePath = path.join(UPLOAD_DIR, uploadedPath);
+        if (!fs.existsSync(filePath)) return res.status(400).send('File expired or missing.');
+
+        // Re-initialize importer
+        const databaseService = require('../services/DatabaseService'); // ensure we use the singleton instance style or new instance connected
+        // Actually, we should use the existing initialized service if possible, or just create new one
+        const dbService = new (require('../services/DatabaseService'))();
+        await dbService.connect();
+
+        const ExcelImporter = require('../services/ExcelImporter');
+        const importer = new ExcelImporter(prisma, { 
+            dir: UPLOAD_DIR, 
+            databaseService: dbService 
+        });
+
+        // Re-parse (safe since it's local)
+        const parsed = await importer.parseFile(filePath);
+        
+        // Filter sheets if user deselected some (optional feature, for now import all valid)
+        // ... (can implement filtering based on sheetsToImport)
+
+        // Run import
+        const result = await importer.importData(parsed);
+
+        res.render('import-success', { 
+            title: 'Import Complete', 
+            summary: result.summary,
+            errors: result.errors
+        });
+
+    } catch (err) {
+        console.error('Import confirm error:', err);
+        res.status(500).render('error', { error: err });
+    }
+});
 
 module.exports = router;

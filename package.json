@@ -44,7 +44,8 @@
     "prisma": "^6.19.0",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

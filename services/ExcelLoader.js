@@ -28,7 +28,7 @@ function loadImportedJson() {
 function computeFilesHash(dir) {
   try {
     const files = fs.readdirSync(dir)
-      .filter(f => /\.(xlsx|xls|csv|json)$/i.test(f))
+      .filter(f => /\.(xlsx|xls|csv|json)$/i.test(f) && f !== '.imported.json')
       .map(f => path.join(dir, f))
       .sort();
 
