@@ -3,7 +3,7 @@
     <div class="sidebar-logo">
         <h2>🎯 Partner Dashboard</h2>
     </div>
-    
+
     <nav class="nav-menu">
         <a href="/dashboard" class="nav-item <%= title === 'Partner Management Dashboard' ? 'active' : '' %>">
             <span class="icon">📊</span>
@@ -25,6 +25,10 @@
             <span class="icon">📑</span>
             <span>Compliance</span>
         </a>
+        <a href="/consortium-events" class="nav-item <%= title === 'Consortium Events' ? 'active' : '' %>">
+            <span class="icon">📑</span>
+            <span>Consortium Events</span>
+        </a>
         <a href="/key-personnel" class="nav-item <%= title === 'Key Personnel Directory' ? 'active' : '' %>">
             <span class="icon">👥</span>
             <span>Key Personnel</span>
@@ -33,25 +37,26 @@
             <span class="icon">🤝</span>
             <span>External Partners</span>
         </a>
-        
-        <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+
+        <% if (typeof user !=='undefined' && user && user.role==='admin' ) { %>
             <div class="nav-divider"></div>
             <div class="nav-section-header">
                 <span class="icon">👑</span>
                 <span>Admin Panel</span>
             </div>
-            <a href="/admin/users" class="nav-item admin-item <%= title === 'User Management - Admin Panel' ? 'active' : '' %>">
+            <a href="/admin/users"
+                class="nav-item admin-item <%= title === 'User Management - Admin Panel' ? 'active' : '' %>">
                 <span class="icon">👥</span>
                 <span>User Management</span>
             </a>
-        <% } %>
-        
-        <div class="nav-divider"></div>
-        
-        <a href="/logout" class="nav-item logout">
-            <span class="icon">🚪</span>
-            <span>Logout</span>
-        </a>
+            <% } %>
+
+                <div class="nav-divider"></div>
+
+                <a href="/logout" class="nav-item logout">
+                    <span class="icon">🚪</span>
+                    <span>Logout</span>
+                </a>
     </nav>
 </aside>
 

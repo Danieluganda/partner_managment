@@ -137,7 +137,15 @@ class DatabaseService {
   async getDeliverables() {
     try {
       if (this.prisma && this.prisma.deliverables) {
-        return await this.prisma.deliverables.findMany();
+        const records = await this.prisma.deliverables.findMany();
+        // map prisma fields to view expected fields
+        return records.map(r => ({
+            ...r,
+            milestoneDate: r.dueDate, // alias alias for view
+            // ensure numbers are numbers
+            paymentAmount: r.paymentAmount ? Number(r.paymentAmount) : 0,
+            paymentPercentage: r.paymentPercentage || 0
+        }));
       }
     } catch (err) {
       this.logger.warn('getDeliverables prisma read failed:', err.message);
@@ -304,6 +312,164 @@ class DatabaseService {
       this.logger.error('createDeliverable prisma failed:', err && (err.message || err));
       throw err;
     }
+  }
+
+  async createComplianceRecord(complianceData = {}) {
+    const payload = this._prepareCreatePayload(complianceData);
+    payload.complianceType = payload.complianceType || 'Tax'; // default
+    
+    // DEBUG LOG
+    this.logger.info('createComplianceRecord called. Has prisma?', !!this.prisma, 'Has compliance_records?', !!(this.prisma && this.prisma.compliance_records));
+
+    try {
+      if (this.prisma && this.prisma.compliance_records) {
+        const prismaPayload = {
+          id: payload.id,
+          partnerId: payload.partnerId || null,
+          partnerName: String(payload.partnerName || 'Unknown'),
+          complianceType: String(payload.complianceType),
+          requirement: String(payload.requirement || 'General Requirement'),
+          status: String(payload.status || 'Pending'),
+          dueDate: payload.dueDate || null,
+          lastReviewDate: payload.lastReviewDate || null,
+          nextReviewDate: payload.nextReviewDate || null,
+          responsiblePerson: payload.responsiblePerson || null,
+          notes: payload.notes || null,
+          createdAt: payload.createdAt,
+          updatedAt: payload.updatedAt
+        };
+        const res = await this.prisma.compliance_records.create({ data: prismaPayload });
+        this.logger.info('createComplianceRecord: Created in Prisma:', res.id);
+        return res;
+      }
+      this.logger.warn('createComplianceRecord: Falling back to JSON store');
+      return await this._saveToJsonFallback('compliance', payload);
+    } catch (err) {
+      this.logger.error('createComplianceRecord prisma failed:', err && (err.message || err));
+      throw err;
+    }
+  }
+
+  // ==================== EVENTS METHODS ====================
+  
+  async getEvents() {
+    try {
+      if (this.prisma && this.prisma.consortium_events) {
+        return await this.prisma.consortium_events.findMany({
+          orderBy: { eventDate: 'desc' }
+        });
+      }
+    } catch (err) {
+      this.logger.warn('getEvents prisma read failed:', err.message);
+    }
+    const store = await this._loadStore();
+    return store.events || store.consortiumEvents || [];
+  }
+
+  async getEventById(id) {
+    try {
+      if (this.prisma && this.prisma.consortium_events) {
+        return await this.prisma.consortium_events.findUnique({ where: { id } });
+      }
+    } catch (err) {
+      this.logger.warn('getEventById prisma failed:', err.message);
+    }
+    const store = await this._loadStore();
+    return (store.events || store.consortiumEvents || []).find(e => e.id === id) || null;
+  }
+
+  async createEvent(eventData = {}) {
+    const payload = this._prepareCreatePayload(eventData);
+    
+    // Ensure required fields
+    const safePayload = {
+      ...payload,
+      eventName: String(payload.eventName || 'Untitled Event'),
+      status: String(payload.status || 'Planning'),
+      updatedAt: new Date()
+    };
+
+    try {
+      if (this.prisma && this.prisma.consortium_events) {
+        const prismaPayload = {
+          id: safePayload.id,
+          eventName: safePayload.eventName,
+          description: safePayload.description || null,
+          leadPartner: safePayload.leadPartner || null,
+          leadPartnerId: safePayload.leadPartnerId || null,
+          coOrganizingPartners: safePayload.coOrganizingPartners || null,
+          targetAudience: safePayload.targetAudience || null,
+          keyObjectives: safePayload.keyObjectives || null,
+          programOutput: safePayload.programOutput || null,
+          eventDate: safePayload.eventDate || null,
+          eventTime: safePayload.eventTime || null,
+          format: safePayload.format || null,
+          location: safePayload.location || null,
+          status: safePayload.status,
+          responsiblePerson: safePayload.responsiblePerson || null,
+          requiredAttendees: safePayload.requiredAttendees || null,
+          materialsLink: safePayload.materialsLink || null,
+          reportLink: safePayload.reportLink || null,
+          reviewNotes: safePayload.reviewNotes || null,
+          updatedAt: safePayload.updatedAt
+        };
+        return await this.prisma.consortium_events.create({ data: prismaPayload });
+      }
+    } catch (err) {
+      this.logger.error('createEvent prisma failed:', err.message || err);
+    }
+    
+    // Fallback
+    if (this.dataService && typeof this.dataService.createEvent === 'function') {
+      return await this.dataService.createEvent(safePayload);
+    }
+    await this._saveToJsonFallback('events', safePayload);
+    return safePayload;
+  }
+
+  async updateEvent(id, updates = {}) {
+    const payload = { ...updates, updatedAt: new Date() };
+    
+    try {
+      if (this.prisma && this.prisma.consortium_events) {
+        return await this.prisma.consortium_events.update({
+          where: { id },
+          data: payload
+        });
+      }
+    } catch (err) {
+      this.logger.error('updateEvent prisma failed:', err.message || err);
+    }
+    
+    // Fallback
+    const store = await this._loadStore();
+    const events = store.events || store.consortiumEvents || [];
+    const index = events.findIndex(e => e.id === id);
+    if (index !== -1) {
+      events[index] = { ...events[index], ...payload };
+      store.events = events;
+      await this._saveStore(store);
+      return events[index];
+    }
+    return null;
+  }
+
+  async deleteEvent(id) {
+    try {
+      if (this.prisma && this.prisma.consortium_events) {
+        return await this.prisma.consortium_events.delete({ where: { id } });
+      }
+    } catch (err) {
+      this.logger.error('deleteEvent prisma failed:', err.message || err);
+    }
+    
+    // Fallback
+    const store = await this._loadStore();
+    const events = store.events || store.consortiumEvents || [];
+    const filtered = events.filter(e => e.id !== id);
+    store.events = filtered;
+    await this._saveStore(store);
+    return { deleted: true };
   }
 
   // helper: append to JSON fallback (if used elsewhere adapt name)

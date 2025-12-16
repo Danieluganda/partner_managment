@@ -32,55 +32,22 @@ document.addEventListener('DOMContentLoaded', function() {
             partnerName: item.partner?.companyName || 'Unknown Partner',
             deliverableNumber: item.deliverableNumber || 'N/A',
             description: item.title,
-            milestoneDate: item.targetDate ? new Date(item.targetDate).toISOString().split('T')[0] : '-',
+            milestoneDate: (item.milestoneDate || item.dueDate) ? new Date(item.milestoneDate || item.dueDate).toISOString().split('T')[0] : '-',
             status: item.status,
-            actualSubmission: item.actualDate ? new Date(item.actualDate).toISOString().split('T')[0] : '-',
+            actualSubmission: item.actualSubmission ? new Date(item.actualSubmission).toISOString().split('T')[0] : '-',
             approvalDate: item.approvalDate ? new Date(item.approvalDate).toISOString().split('T')[0] : '-',
             paymentPercentage: item.paymentPercentage ? `${item.paymentPercentage}%` : '0%',
-            paymentAmount: item.value ? formatCurrency(item.value) : 'UGX 0',
+            paymentAmount: item.value ? formatCurrency(item.value) : (item.paymentAmount ? formatCurrency(item.paymentAmount) : 'UGX 0'),
             paymentStatus: item.paymentStatus || 'pending',
-            rawPaymentAmount: item.value || 0,
+            rawPaymentAmount: item.value || item.paymentAmount || 0,
             rawPaymentPercentage: item.paymentPercentage || 0,
-            daysOverdue: item.status === 'overdue' ? calculateDaysOverdue(item.targetDate) : 0,
+            daysOverdue: item.status === 'overdue' ? calculateDaysOverdue(item.milestoneDate || item.dueDate) : 0,
             priority: item.priority || 'medium',
             notes: item.notes || ''
         }));
     } else {
-        // Fallback mock data for development
-        deliverablesData = [
-            {
-                partnerId: "P-01",
-                partnerName: "PEDN",
-                deliverableNumber: "D-001",
-                description: "Project Feasibility Study and Technical Specifications Document",
-                milestoneDate: "2024-01-15",
-                status: "approved",
-                actualSubmission: "2024-01-12",
-                approvalDate: "2024-01-18",
-                paymentPercentage: "25%",
-                paymentAmount: "UGX 187,173,550",
-                paymentStatus: "paid",
-                rawPaymentAmount: 187173550,
-                rawPaymentPercentage: 25,
-                daysOverdue: 0
-            },
-            {
-                partnerId: "P-01",
-                partnerName: "PEDN",
-                deliverableNumber: "D-002",
-                description: "System Architecture and Database Design Documentation",
-                milestoneDate: "2024-03-01",
-                status: "submitted",
-                actualSubmission: "2024-02-28",
-                approvalDate: "-",
-                paymentPercentage: "20%",
-                paymentAmount: "UGX 149,738,840",
-                paymentStatus: "processing",
-                rawPaymentAmount: 149738840,
-                rawPaymentPercentage: 20,
-                daysOverdue: 0
-            }
-        ];
+        // No data available
+        deliverablesData = [];
     }
     
     let filteredData = [...deliverablesData];
@@ -194,16 +161,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         partnerName: item.partner?.companyName || 'Unknown Partner',
                         deliverableNumber: item.deliverableNumber || 'N/A',
                         description: item.title,
-                        milestoneDate: item.targetDate ? new Date(item.targetDate).toISOString().split('T')[0] : '-',
+                        milestoneDate: (item.milestoneDate || item.dueDate) ? new Date(item.milestoneDate || item.dueDate).toISOString().split('T')[0] : '-',
                         status: item.status,
-                        actualSubmission: item.actualDate ? new Date(item.actualDate).toISOString().split('T')[0] : '-',
+                        actualSubmission: item.actualSubmission ? new Date(item.actualSubmission).toISOString().split('T')[0] : '-',
                         approvalDate: item.approvalDate ? new Date(item.approvalDate).toISOString().split('T')[0] : '-',
                         paymentPercentage: item.paymentPercentage ? `${item.paymentPercentage}%` : '0%',
-                        paymentAmount: item.value ? formatCurrency(item.value) : 'UGX 0',
+                        paymentAmount: item.value ? formatCurrency(item.value) : (item.paymentAmount ? formatCurrency(item.paymentAmount) : 'UGX 0'),
                         paymentStatus: item.paymentStatus || 'pending',
-                        rawPaymentAmount: item.value || 0,
+                        rawPaymentAmount: item.value || item.paymentAmount || 0,
                         rawPaymentPercentage: item.paymentPercentage || 0,
-                        daysOverdue: item.status === 'overdue' ? calculateDaysOverdue(item.targetDate) : 0,
+                        daysOverdue: item.status === 'overdue' ? calculateDaysOverdue(item.milestoneDate || item.dueDate) : 0,
                         priority: item.priority || 'medium',
                         notes: item.notes || ''
                     }));

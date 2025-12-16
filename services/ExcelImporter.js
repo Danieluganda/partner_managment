@@ -87,6 +87,7 @@ class ExcelImporter {
              else if (hLower.some(h => /contract status|task order price|partner id/.test(h))) handlerType = 'partners';
              else if (hLower.some(h => /contact type|job title|key personnel/.test(h))) handlerType = 'personnel';
              else if (hLower.some(h => /requirement|reporting period|fmcs/.test(h))) handlerType = 'compliance';
+             else if (hLower.some(h => /event name|lead partner|target audience|key objectives/.test(h))) handlerType = 'events';
              // Fallback for personnel if it has email/phone but didn't match above strict checks
              else if (hLower.some(h => /email|phone/.test(h))) handlerType = 'personnel';
         }
@@ -192,27 +193,40 @@ class ExcelImporter {
   async _importDeliverables(rows = []) {
     if (!Array.isArray(rows) || rows.length === 0) return;
     let processed = 0;
+
+    // helper to parse dates from Excel numbers or strings
+    const parseDate = (val) => {
+        if (!val) return null;
+        if (val instanceof Date) return val.toISOString();
+        return String(val);
+    };
+
     for (const r of rows) {
       const deliverableNumber = (r['Deliverable #'] || r['Deliverable No'] || '').toString().trim() || null;
       const description = (r['Description'] || '').toString().trim();
+      
+      const milestoneDate = parseDate(r['Milestone Date'] || r['Due Date'] || r['Deadline']);
+      
       const deliverableObj = {
         partnerId: (r['Partner ID'] || '').toString().trim() || null,
         partnerName: (r['Partner Name'] || '').toString().trim() || null,
         deliverableNumber,
         deliverableName: description || (deliverableNumber ? `Deliverable ${deliverableNumber}` : 'Deliverable'),
         description: description || null,
-        milestoneDate: r['Milestone Date'] || null,
-        status: (r['Status'] || 'pending') || null,
-        actualSubmission: r['Actual Submission'] || null,
-        approvalDate: r['Approval Date'] || null,
+        milestoneDate: milestoneDate,
+        dueDate: milestoneDate, // explicit mapping for DB
+        status: (r['Status'] || 'pending').toString().trim().toLowerCase(),
+        actualSubmission: parseDate(r['Actual Submission']),
+        approvalDate: parseDate(r['Approval Date']),
         paymentPercentage: r['% Payment'] || null,
         paymentAmount: r['Payment Amount'] || null,
         paymentStatus: r['Payment Status'] || null,
-        assignedTo: r['Responsible Person'] || null,
+        assignedTo: (r['Responsible Person'] || r['Assigned To'] || '').toString().trim() || null,
         notes: r['Notes'] || null,
         importedFromExcel: true,
-        importedAt: new Date()
+        importedAt: new Date().toISOString()
       };
+      
       try {
         const createObj = Object.assign({}, deliverableObj);
         ensureId(createObj);
@@ -226,18 +240,70 @@ class ExcelImporter {
     this.logger.info(`ExcelImporter: imported ${processed}/${rows.length} deliverable rows`);
   }
 
+  // Helper to normalize partner names
+  _normalizePartnerName(rawName) {
+    const name = String(rawName || '').trim();
+    if (!name) return 'Unknown Partner';
+    
+    // Normalization Map (Upper Case Keys)
+    const MAP = {
+      'PEDN': 'The Private Education Development Network Limited',
+      'THE PRIVATE EDUCATION DEVELOPMENT NETWORK LIMITED': 'The Private Education Development Network Limited',
+      'SBIL': 'Stanbic Business Incubator Limited',
+      'STANBIC BUSINESS INCUBATOR LIMITED': 'Stanbic Business Incubator Limited',
+      'XY': 'Finding XY',
+      'FINDING XY': 'Finding XY',
+      'CHALLENGES UGANDA': 'Challenges Uganda',
+      'DFCU BANK': 'dfcu Bank',
+      'DFCU FOUNDATION': 'dfcu Bank',
+      'EHCAI': 'EHCAI',
+      'MKAZI FOUNDATION': 'Mkazi Foundation',
+      'MKAZI': 'Mkazi Foundation',
+      'MUBS': 'MUBS',
+      'LEU': 'LEU',
+      'AGDI': 'AGDI',
+      'EASSI': 'EASSI',
+      'AID': 'AID',
+      'CURAD': 'CURAD'
+    };
+
+    const upper = name.toUpperCase();
+    return MAP[upper] || name;
+  }
+
   async _importPartners(rows = []) {
     // basic partner import - implement as needed
     if (!Array.isArray(rows) || rows.length === 0) return;
     let processed = 0;
+    
+    // Pre-fetch existing partners to check for duplicates
+    let existingNames = new Set();
+    try {
+      if (this.prisma && this.prisma.partners) {
+        const existing = await this.prisma.partners.findMany({ select: { partnerName: true } });
+        existing.forEach(p => existingNames.add(String(p.partnerName).toUpperCase()));
+      }
+    } catch (e) { /* ignore */ }
+
     for (const r of rows) {
+      const rawName = (r['Partner Name'] || r['Name'] || '').trim();
+      const normalizedName = this._normalizePartnerName(rawName);
+      
+      // Duplication Check
+      if (existingNames.has(normalizedName.toUpperCase())) {
+        this.logger.warn(`ExcelImporter: Skipping duplicate partner '${rawName}' (Normalized: ${normalizedName})`);
+        continue;
+      }
+
       const partner = {
-        partnerId: r['Partner ID'] || r['ID'] || null,
-        partnerName: r['Partner Name'] || r['Name'] || null,
+        id: (r['Partner ID'] || r['ID'] || '').trim() || null,
+        partnerName: normalizedName,
+        partnerType: (r['Partner Type'] || r['Type'] || 'External').trim(),
+        contactEmail: (r['Contact Email'] || r['Email'] || 'no-email@provided.com').trim(),
         contractStatus: r['Contract Status'] || null,
-        frameworkAgreementDate: r['Framework Agreement Date'] || null,
-        commencementDate: r['Commencement Date'] || null,
-        termYears: r['Term (Years)'] || null,
+        contractStartDate: (r['Framework Agreement Date'] instanceof Date) ? r['Framework Agreement Date'].toISOString() : (r['Framework Agreement Date'] || null),
+        commencementDate: (r['Commencement Date'] instanceof Date) ? r['Commencement Date'].toISOString() : (r['Commencement Date'] || null),
+        contractDuration: (r['Term (Years)'] || '').toString() || null,
         regionsOfOperation: r['Regions of Operation'] || null,
         createdAt: new Date()
       };
@@ -250,6 +316,7 @@ class ExcelImporter {
         } else {
           this.logger.warn('ExcelImporter: cannot create partner (no DB API)');
         }
+        existingNames.add(normalizedName.toUpperCase()); // add to local set to prevent dups within same file
         processed++;
       } catch (err) {
         this.logger.error('ExcelImporter: partner import error', err && (err.message || err), partner);
@@ -259,7 +326,99 @@ class ExcelImporter {
   }
 
   async _importCompliance(rows = []) {
-    this.logger.info(`ExcelImporter: (compliance) rows=${rows.length} - handler not implemented`);
+    if (!Array.isArray(rows) || rows.length === 0) return;
+    let processed = 0;
+    
+    // helper to parse dates from Excel numbers or strings
+    const parseDate = (val) => {
+        if (!val) return null;
+        if (val instanceof Date) return val.toISOString();
+        return String(val);
+    };
+
+    for (const r of rows) {
+      const compliance = {
+        partnerId: r['Partner ID'] || null,
+        partnerName: (r['Partner Name'] || r['Partner'] || '').trim(),
+        complianceType: (r['Compliance Type'] || r['Type'] || 'General').trim(),
+        requirement: (r['Requirement'] || r['Standard'] || r['Item'] || '').trim(),
+        status: (r['Status'] || r['Compliance Status'] || 'Pending').trim(),
+        dueDate: parseDate(r['Due Date'] || r['Deadline']),
+        lastReviewDate: parseDate(r['Last Review'] || r['Review Date']),
+        responsiblePerson: (r['Responsible Person'] || r['Owner'] || '').trim(),
+        notes: (r['Notes'] || r['Comments'] || '').trim()
+      };
+      
+      try {
+        const createData = Object.assign({}, compliance);
+        ensureId(createData);
+        
+        if (this.databaseService && typeof this.databaseService.createComplianceRecord === 'function') {
+           await this.databaseService.createComplianceRecord(createData);
+           processed++;
+        } else {
+           // fallback if method missing (shouldn't happen with updated DatabaseService)
+           await this._persistToFallback('compliance', createData);
+           processed++;
+        }
+      } catch (err) {
+         this.logger.error('ExcelImporter: compliance import error', err && (err.message || err), compliance);
+      }
+    }
+    this.logger.info(`ExcelImporter: imported ${processed}/${rows.length} compliance rows`);
+  }
+
+  // Import Events (Consortium Events)
+  async _importEvents(rows) {
+    let processed = 0;
+    
+    // Helper to parse dates
+    const parseDate = (val) => {
+      if (!val) return null;
+      if (val instanceof Date) return val.toISOString().split('T')[0];
+      return String(val);
+    };
+
+    for (const r of rows) {
+      try {
+        const eventName = (r['Event Name & Description'] || r['Event Name'] || '').toString().trim();
+        if (!eventName) continue; // Skip empty rows
+
+        const event = {
+          eventName: eventName,
+          description: eventName, // Full description is in the same field
+          leadPartner: (r['Lead Partner'] || '').toString().trim() || null,
+          leadPartnerId: null, // Will be linked later if needed
+          coOrganizingPartners: (r['Co-Organizing Partners'] || '').toString().trim() || null,
+          targetAudience: (r['Target Audience'] || '').toString().trim() || null,
+          keyObjectives: (r['Key Objectives'] || '').toString().trim() || null,
+          programOutput: (r['Directly Linked to Program Output'] || '').toString().trim() || null,
+          eventDate: parseDate(r['Date(s)'] || r['Date']),
+          eventTime: (r['Time'] || '').toString().trim() || null,
+          format: (r['Format (Virtual/Physica)'] || r['Format'] || '').toString().trim() || null,
+          location: (r['Location/Virtual Link'] || r['Location'] || '').toString().trim() || null,
+          status: (r['Status (Planning/Confirmed/Completed/Cancelled)'] || r['Status'] || 'Planning').toString().trim(),
+          responsiblePerson: (r['Responsible Lead Person'] || r['Responsible Person'] || '').toString().trim() || null,
+          requiredAttendees: (r['Required Attendees (Stakeholders)'] || r['Required Attendees'] || '').toString().trim() || null,
+          materialsLink: (r['Link to Materials Prepared (Agenda, etc)'] || r['Materials Link'] || '').toString().trim() || null,
+          reportLink: (r['Post-Event Report Link'] || r['Report Link'] || '').toString().trim() || null,
+          reviewNotes: (r['Review & Notes'] || r['Notes'] || '').toString().trim() || null
+        };
+
+        ensureId(event);
+
+        if (this.databaseService && typeof this.databaseService.createEvent === 'function') {
+          await this.databaseService.createEvent(event);
+          processed++;
+        } else {
+          await this._persistToFallback('events', event);
+          processed++;
+        }
+      } catch (err) {
+        this.logger.error('ExcelImporter: event import error', err && (err.message || err));
+      }
+    }
+    this.logger.info(`ExcelImporter: imported ${processed}/${rows.length} event rows`);
   }
 
   // helper: persist single item to JSON fallback collection

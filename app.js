@@ -1018,6 +1018,126 @@ app.get('/deliverables-tracker', authenticateToken, async (req, res) => {
     }
 });
 
+// Consortium Events Route
+app.get('/consortium-events', authenticateToken, async (req, res) => {
+    try {
+        const events = (await databaseService.getEvents()) || [];
+        
+        console.log('🔍 DatabaseService: Found events', events.length);
+        if (events.length) console.log('🔍 Sample event:', events[0]);
+
+        const total = events.length;
+        const today = new Date();
+        const upcoming = events.filter(e => {
+            if (!e.eventDate) return false;
+            return new Date(e.eventDate) >= today && e.status !== 'Completed' && e.status !== 'Cancelled';
+        }).length;
+        const completed = events.filter(e => e.status === 'Completed').length;
+        const thisMonth = events.filter(e => {
+            if (!e.eventDate) return false;
+            const eventDate = new Date(e.eventDate);
+            return eventDate.getMonth() === today.getMonth() && 
+                   eventDate.getFullYear() === today.getFullYear();
+        }).length;
+
+        const stats = { total, upcoming, completed, thisMonth };
+
+        res.render('consortium-events', {
+            title: 'Consortium Events - Partner Dashboard',
+            data: { events },
+            jsData: { events, stats },
+            additionalJS: ['/js/consortium-events.js']
+        });
+    } catch (err) {
+        console.error('Error loading consortium events:', err);
+        res.render('consortium-events', {
+            title: 'Consortium Events - Partner Dashboard',
+            data: { events: [] },
+            jsData: { events: [], stats: {} },
+            additionalJS: ['/js/consortium-events.js'],
+            error: err.message
+        });
+    }
+});
+
+// Event API Routes
+app.get('/api/events', authenticateToken, async (req, res) => {
+    try {
+        const events = await databaseService.getEvents();
+        res.json({ success: true, events });
+    } catch (err) {
+        console.error('Error fetching events:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.post('/api/events', authenticateToken, async (req, res) => {
+    try {
+        const event = await databaseService.createEvent(req.body);
+        res.json({ success: true, event });
+    } catch (err) {
+        console.error('Error creating event:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.put('/api/events/:id', authenticateToken, async (req, res) => {
+    try {
+        const event = await databaseService.updateEvent(req.params.id, req.body);
+        res.json({ success: true, event });
+    } catch (err) {
+        console.error('Error updating event:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.delete('/api/events/:id', authenticateToken, async (req, res) => {
+    try {
+        await databaseService.deleteEvent(req.params.id);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error deleting event:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Event Form Routes
+app.get('/forms/event', authenticateToken, async (req, res) => {
+    try {
+        const partners = await databaseService.getPartners() || [];
+        res.render('forms/event-form', {
+            title: 'Add Event - Partner Dashboard',
+            editMode: false,
+            event: {},
+            partners: partners
+        });
+    } catch (err) {
+        console.error('Error loading event form:', err);
+        res.status(500).send('Error loading form');
+    }
+});
+
+app.get('/forms/event/:id/edit', authenticateToken, async (req, res) => {
+    try {
+        const event = await databaseService.getEventById(req.params.id);
+        const partners = await databaseService.getPartners() || [];
+        
+        if (!event) {
+            return res.status(404).send('Event not found');
+        }
+        
+        res.render('forms/event-form', {
+            title: 'Edit Event - Partner Dashboard',
+            editMode: true,
+            event: event,
+            partners: partners
+        });
+    } catch (err) {
+        console.error('Error loading event edit form:', err);
+        res.status(500).send('Error loading form');
+    }
+});
+
 // Deliverable Form Routes
 app.get('/forms/deliverable', authenticateToken, async (req, res) => {
     try {
@@ -1946,27 +2066,7 @@ app.get('/api/personnel/:id', async (req, res) => {
     }
 });
 
-app.put('/api/personnel/:id', async (req, res) => {
-    try {
-        const personnelId = req.params.id;
-        const personnelData = req.body;
-        
-        console.log('Updating personnel with data:', personnelData);
-        
-        // Update personnel
-        const updatedPersonnel = await databaseService.updatePersonnel(personnelId, personnelData);
-        res.json({ 
-            success: true, 
-            personnel: updatedPersonnel.getSummary(),
-            message: 'Personnel updated successfully'
-        });
-    } catch (error) {
-        console.error('Error updating personnel:', error);
-        res.status(500).json({ 
-            error: error.message || 'Failed to update personnel'
-        });
-    }
-});
+
 
 app.delete('/api/personnel/:id', async (req, res) => {
     try {

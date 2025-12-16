@@ -42,25 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }));
         console.log('Using backend financial data:', financialData);
     } else {
-        // Fallback sample data if no backend data available
-        financialData = [
-            {
-                partnerId: "P-01",
-                partnerName: "PEDN",
-                totalPrice: "UGX 748,694,200",
-                q1Paid: "-",
-                q2Paid: "-",
-                q3Paid: "-",
-                q4Paid: "-",
-                totalDisbursed: "-",
-                utilizationRate: "40.0%",
-                comments: "-",
-                rawTotalPrice: 748694200,
-                rawUtilizationRate: 40.0,
-                rawTotalDisbursed: 0
-            }
-        ];
-        console.log('Using fallback sample data');
+        // No data available
+        financialData = [];
+        console.log('No financial data available');
     }
     
     let filteredData = [...financialData];

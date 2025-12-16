@@ -225,3 +225,28 @@ model Contacts {
   
   @@map("contacts")
 }
+
+model consortium_events {
+  id                    String   @id
+  eventName             String
+  description           String?
+  leadPartner           String?
+  leadPartnerId         String?
+  coOrganizingPartners  String?
+  targetAudience        String?
+  keyObjectives         String?
+  programOutput         String?
+  eventDate             String?
+  eventTime             String?
+  format                String?
+  location              String?
+  status                String
+  responsiblePerson     String?
+  requiredAttendees     String?
+  materialsLink         String?
+  reportLink            String?
+  reviewNotes           String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+

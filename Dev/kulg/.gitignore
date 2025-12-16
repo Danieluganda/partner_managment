@@ -1,7 +1,0 @@
-node_modules/
-coverage/
-.env
-logs/
-~$*.xlsx
-.vscode/
-data/excel/

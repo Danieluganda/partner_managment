@@ -48,36 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
             responsiblePerson: record.responsiblePerson
         }));
     } else {
-        console.log('Using sample compliance data');
-        
-        // Sample compliance data (fallback)
-        complianceData = [
-            {
-                partnerId: "P-01",
-                partnerName: "PEDN",
-                requirement: "Quarterly Financial Report - Q4 2024",
-                dueDate: "2024-01-31",
-                reportingPeriod: "Q4 2024",
-                submissionDate: "2024-01-28",
-                status: "compliant",
-                fmcsAudit: "pass",
-                notes: "Submitted on time with complete documentation",
-                daysOverdue: 0
-            },
-            {
-                partnerId: "P-01",
-                partnerName: "PEDN",
-                requirement: "Environmental Impact Assessment Update",
-                dueDate: "2024-03-15",
-                reportingPeriod: "Annual 2024",
-                submissionDate: "-",
-                status: "pending",
-                fmcsAudit: "not-audited",
-                notes: "Awaiting final environmental review documents",
-                daysOverdue: 0
-            }
-            // ... other sample data
-        ];
+        console.log('No compliance data available');
+        complianceData = [];
     }
     
     // Helper functions for data transformation
